@@ -1,0 +1,71 @@
+<!-- templates/generator/map_fields.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Map Fields</title>
+    <style>
+        img {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #ccc;
+            cursor: crosshair;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            text-align: center;
+        }
+        .instructions {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            color: #444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🖱️ Click on the template to map each column</h2>
+        <p class="instructions">Now placing: <strong id="current-field"></strong></p>
+
+        <img id="templateImage" src="{{ template_url }}" alt="Template" onclick="handleClick(event)">
+
+        <form id="coordinatesForm" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="field_data" id="fieldData">
+            <button type="submit" style="margin-top: 20px;" disabled id="submitBtn">Submit Mapping</button>
+        </form>
+    </div>
+
+    <script>
+        const fields = {{ headers|safe }};
+        let currentIndex = 0;
+        let mapping = {};
+
+        const image = document.getElementById('templateImage');
+        const currentFieldDisplay = document.getElementById('current-field');
+        const fieldDataInput = document.getElementById('fieldData');
+        const submitBtn = document.getElementById('submitBtn');
+
+        currentFieldDisplay.innerText = fields[currentIndex];
+
+        function handleClick(event) {
+            const rect = image.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            const field = fields[currentIndex];
+            mapping[field] = [Math.round(x), Math.round(y)];
+            console.log(`Mapped ${field} to (${x}, ${y})`);
+
+            currentIndex++;
+            if (currentIndex < fields.length) {
+                currentFieldDisplay.innerText = fields[currentIndex];
+            } else {
+                currentFieldDisplay.innerText = "✅ Done!";
+                fieldDataInput.value = JSON.stringify(mapping);
+                submitBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Certificate Generator</title>
+</head>
+<body>
+    <h2>Upload Certificate Template & Data</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <p>
+            <label for="template_file">Certificate Template (Image):</label>
+            <input type="file" name="template_file" required>
+        </p>
+        <p>
+            <label for="data_file">Data File (CSV):</label>
+            <input type="file" name="data_file" required>
+        </p>
+        <button type="submit">Next: Map Fields</button>
+    </form>
+</body>
+</html>
