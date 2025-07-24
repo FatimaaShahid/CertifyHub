@@ -55,3 +55,75 @@ def map_fields(request):
         'template_url': template_url,
     })
 
+def choose_font(request):
+    if request.method == 'POST':
+        font_settings = {}
+        headers = request.session.get('headers', [])
+
+        for field in headers:
+            font = request.POST.get(f"{field}_font")
+            size = request.POST.get(f"{field}_size")
+            font_settings[field] = {'font': font, 'size': int(size)}
+
+        request.session['font_settings'] = font_settings
+        return redirect('generate_certificates')
+
+    headers = request.session.get('headers', [])
+    if not headers:
+        return redirect('upload_files')
+
+    return render(request, 'generator/choose_font.html', {'fields': headers})
+from PIL import Image, ImageDraw, ImageFont
+import os
+
+import csv
+
+def generate_certificates(request):
+    # Retrieve paths and configs
+    csv_path = request.session.get('csv_path')
+    template_path = request.session.get('template_path')
+    coordinates = request.session.get('field_coordinates', {})
+    font_settings = request.session.get('font_settings', {})
+
+    # Safety check
+    if not all([csv_path, template_path, coordinates, font_settings]):
+        return redirect('upload_files')
+
+    csv_full_path = os.path.join(settings.MEDIA_ROOT, csv_path)
+    csv_data = []
+
+    with open(csv_full_path, newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if 's.no' in row:
+                del row['s.no']
+            elif 'S.No' in row:
+                del row['S.No']
+            csv_data.append(row)
+
+    # Ensure output directory
+    if not os.path.exists('output'):
+        os.makedirs('output')
+
+    # Generate certificates
+    for index, row in enumerate(csv_data):
+        img = Image.open(os.path.join(settings.MEDIA_ROOT, template_path)).convert("RGB")
+        draw = ImageDraw.Draw(img)
+
+        for field, value in row.items():
+            x, y = coordinates.get(field, (0, 0))
+            font_info = font_settings.get(field, {'font': 'arial.ttf', 'size': 40})
+            try:
+                font = ImageFont.truetype(font_info['font'], font_info['size'])
+            except:
+                font = ImageFont.load_default()
+            draw.text((x, y), value, fill='black', font=font)
+
+        safe_name = row.get('Name', f"user_{index+1}").replace(' ', '_')
+        output_path = f"output/certificate_{index+1}_{safe_name}.pdf"
+        img.save(output_path, "PDF")
+
+    return render(request, 'generator/success.html')
+
+
+

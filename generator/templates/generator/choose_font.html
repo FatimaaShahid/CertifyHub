@@ -1,0 +1,50 @@
+<!-- templates/generator/choose_font.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Choose Font Settings</title>
+    <style>
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .field-block {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+        select, input {
+            padding: 6px;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🖋️ Font Settings for Each Field</h2>
+        <form method="post">
+            {% csrf_token %}
+            {% for field in fields %}
+                <div class="field-block">
+                    <h4>{{ field }}</h4>
+                    <label>Font Style:
+                        <select name="{{ field }}_font">
+                            <option value="arial.ttf">Arial</option>
+                            <option value="times.ttf">Times New Roman</option>
+                            <option value="calibri.ttf">Calibri</option>
+                        </select>
+                    </label>
+                    <br><br>
+                    <label>Font Size:
+                        <input type="number" name="{{ field }}_size" value="40" min="10" max="100">
+                    </label>
+                </div>
+            {% endfor %}
+            <button type="submit">Finalize and Generate</button>
+        </form>
+    </div>
+</body>
+</html>
