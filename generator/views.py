@@ -56,27 +56,44 @@ def map_fields(request):
     })
 
 def choose_font(request):
+    template_path = request.session.get('template_path')
+    template_url = default_storage.url(template_path)
+    coordinates = request.session.get('field_coordinates', {})
+    headers = request.session.get('headers', [])
+
+    if not headers or not coordinates:
+        return redirect('upload_files')
+
     if request.method == 'POST':
         font_settings = {}
-        headers = request.session.get('headers', [])
-
         for field in headers:
             font = request.POST.get(f"{field}_font")
             size = request.POST.get(f"{field}_size")
-            font_settings[field] = {'font': font, 'size': int(size)}
+            color = request.POST.get(f"{field}_color")
+            font_settings[field] = {
+                'font': font,
+                'size': int(size),
+                'color': color
+            }
 
         request.session['font_settings'] = font_settings
         return redirect('generate_certificates')
 
-    headers = request.session.get('headers', [])
-    if not headers:
-        return redirect('upload_files')
+    return render(request, 'generator/choose_font.html', {
+        'fields': headers,
+        'template_url': template_url,
+        'coordinates': coordinates
+    })
 
-    return render(request, 'generator/choose_font.html', {'fields': headers})
 from PIL import Image, ImageDraw, ImageFont
 import os
 
 import csv
+
+def hex_to_rgb(value):
+    value = value.lstrip('#')
+    lv = len(value)
+    return tuple(int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
 
 def generate_certificates(request):
     # Retrieve paths and configs
@@ -112,18 +129,20 @@ def generate_certificates(request):
 
         for field, value in row.items():
             x, y = coordinates.get(field, (0, 0))
-            font_info = font_settings.get(field, {'font': 'arial.ttf', 'size': 40})
+            font_info = font_settings.get(field, {'font': 'arial.ttf', 'size': 40, 'color': '#000000'})
             try:
                 font = ImageFont.truetype(font_info['font'], font_info['size'])
             except:
                 font = ImageFont.load_default()
-            draw.text((x, y), value, fill='black', font=font)
+            rgb_color = hex_to_rgb(font_info.get('color', '#000000'))
+            draw.text((x, y), value, fill=rgb_color, font=font)
 
         safe_name = row.get('Name', f"user_{index+1}").replace(' ', '_')
         output_path = f"output/certificate_{index+1}_{safe_name}.pdf"
         img.save(output_path, "PDF")
 
     return render(request, 'generator/success.html')
+
 
 
 
