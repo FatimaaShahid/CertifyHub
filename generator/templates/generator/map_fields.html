@@ -1,75 +1,180 @@
-<!-- templates/generator/map_fields.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Map Fields</title>
-    <style>
-        img {
-            max-width: 100%;
-            height: auto;
-            border: 2px solid #ccc;
-            cursor: crosshair;
-        }
-        .container {
-            max-width: 800px;
-            margin: auto;
-            text-align: center;
-        }
-        .instructions {
-            margin-top: 20px;
-            font-size: 1.2rem;
-            color: #444;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Certificate Area Selector</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: white;
+      background: url("Static/images/image 2.png") no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 900px;
+      width: 100%;
+    }
+
+    h2 {
+      font-size: 32px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    #instruction {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    canvas {
+      border: 2px dashed #7ba4ce;
+      border-radius: 12px;
+      cursor: crosshair;
+      max-width: 100%;
+    }
+
+    select {
+      margin-top: 15px;
+      padding: 8px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+    }
+
+    button {
+      margin-top: 30px;
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: 500;
+      background-color: #666;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      display: none;
+    }
+
+    button:hover {
+      background-color: #888;
+    }
+
+    input[type="hidden"] {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      h2 {
+        font-size: 26px;
+      }
+
+      #instruction {
+        font-size: 18px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h2>🖱️ Click on the template to map each column</h2>
-        <p class="instructions">Now placing: <strong id="current-field"></strong></p>
+  <div class="container">
+    <h2>Certificate Customization</h2>
 
-        <img id="templateImage" src="{{ template_url }}" alt="Template" onclick="handleClick(event)">
-
-        <form id="coordinatesForm" method="post">
-            {% csrf_token %}
-            <input type="hidden" name="field_data" id="fieldData">
-            <button type="submit" style="margin-top: 20px;" disabled id="submitBtn">Submit Mapping</button>
-        </form>
+    <div id="instruction">
+      Drag to select area for: <strong><span id="currentField">Name</span></strong>
     </div>
 
+    <!-- Certificate image drawn on canvas -->
+    <canvas id="templateCanvas"></canvas>
+
+    <!-- Form to send coordinates -->
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="coordinates" id="coordinatesField">
+        <button type="submit" id="submitBtn">Submit Coordinates</button>
+    </form>
+
     <script>
-        const fields = {{ headers|safe }};
+        const fields = JSON.parse('{{ headers|escapejs }}');
         let currentIndex = 0;
-        let mapping = {};
+        let coords = {};
 
-        const image = document.getElementById('templateImage');
-        const currentFieldDisplay = document.getElementById('current-field');
-        const fieldDataInput = document.getElementById('fieldData');
-        const submitBtn = document.getElementById('submitBtn');
+        const canvas = document.getElementById("templateCanvas");
+        const ctx = canvas.getContext("2d");
+        const image = new Image();
+        image.src = "{{ template_url }}";  // ✅ This uses the dynamic image URL from Django
 
-        currentFieldDisplay.innerText = fields[currentIndex];
+        const currentField = document.getElementById("currentField");
+        const coordsField = document.getElementById("coordinatesField");
+        const submitBtn = document.getElementById("submitBtn");
 
-        function handleClick(event) {
-            const rect = image.getBoundingClientRect();
-            const scaleX = image.naturalWidth / image.clientWidth;
-            const scaleY = image.naturalHeight / image.clientHeight;
+        let startX, startY, isDrawing = false;
 
-            const x = Math.round((event.clientX - rect.left) * scaleX);
-            const y = Math.round((event.clientY - rect.top) * scaleY);
+        image.onload = function () {
+            canvas.width = image.width;
+            canvas.height = image.height;
+            ctx.drawImage(image, 0, 0);
+            currentField.innerText = fields[currentIndex];
+        };
 
+        canvas.addEventListener("mousedown", function (e) {
+            const rect = canvas.getBoundingClientRect();
+            startX = e.clientX - rect.left;
+            startY = e.clientY - rect.top;
+            isDrawing = true;
+        });
+
+        canvas.addEventListener("mousemove", function (e) {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const currX = e.clientX - rect.left;
+            const currY = e.clientY - rect.top;
+            const width = currX - startX;
+            const height = currY - startY;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(image, 0, 0);
+            ctx.strokeStyle = "#00ffcc";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(startX, startY, width, height);
+        });
+
+        canvas.addEventListener("mouseup", function (e) {
+            isDrawing = false;
+            const rect = canvas.getBoundingClientRect();
+            const endX = e.clientX - rect.left;
+            const endY = e.clientY - rect.top;
+
+            const x = Math.min(startX, endX);
+            const y = Math.min(startY, endY);
+            const width = Math.abs(endX - startX);
+            const height = Math.abs(endY - startY);
 
             const field = fields[currentIndex];
-            mapping[field] = [Math.round(x), Math.round(y)];
-            console.log(`Mapped ${field} to (${x}, ${y})`);
+            coords[field] = { x, y, width, height };
 
-            currentIndex++;
-            if (currentIndex < fields.length) {
-                currentFieldDisplay.innerText = fields[currentIndex];
+            if (currentIndex < fields.length - 1) {
+                currentIndex++;
+                currentField.innerText = fields[currentIndex];
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(image, 0, 0);
             } else {
-                currentFieldDisplay.innerText = "✅ Done!";
-                fieldDataInput.value = JSON.stringify(mapping);
-                submitBtn.disabled = false;
+                document.getElementById("instruction").innerHTML = "✅ All fields selected!";
+                coordsField.value = JSON.stringify(coords);
+                submitBtn.style.display = "inline-block";
             }
-        }
+        });
     </script>
 </body>
 </html>

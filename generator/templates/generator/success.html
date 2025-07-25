@@ -1,10 +1,67 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Success</title>
+  <meta charset="UTF-8">
+  <title>Success</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      color:white;
+      background: url("Static/images/image 3.png") no-repeat center center fixed;          /*-------------------------------*/
+      background-size: cover;
+      height: 100vh;
+      position: relative;
+    }
+
+    .container {
+      position: absolute;
+      bottom: 40px;
+      left: 40px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 30px 50px;
+      border-radius: 20px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      text-align: left;
+    }
+
+    h2 {
+      font-size: 32px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 20px;
+      margin-bottom: 30px;
+    }
+
+    a.button {
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: 500;
+      background-color: #666;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background 0.3s ease;
+    }
+
+    a.button:hover {
+      background-color: #888;
+    }
+  </style>
 </head>
+
 <body>
-    <h2>🎉 Certificates Generated Successfully!</h2>
-    <p>Check the output folder in your project directory.</p>
+  <div class="container">
+    <h2>🎉 Success!</h2>
+    <p>Your certificates have been downloaded successfully.</p>
+    <a href="index.html" class="button">⬅ Back to Home</a>
+  </div>
 </body>
 </html>

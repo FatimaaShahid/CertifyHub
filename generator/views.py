@@ -17,7 +17,7 @@ def upload_files(request):
         # Full CSV path
         csv_full_path = os.path.join(settings.MEDIA_ROOT, csv_path)
 
-        with open(csv_full_path, newline='', encoding='utf-8') as f:
+        with open(csv_full_path, newline='', encoding='latin1') as f:
             reader = csv.reader(f)
             headers = next(reader)
             if headers[0].lower() in ['s.no', 'sno']:
@@ -38,9 +38,19 @@ from django.core.files.storage import default_storage
 
 def map_fields(request):
     if request.method == 'POST':
-        field_data = request.POST.get('field_data')
-        request.session['field_coordinates'] = json.loads(field_data)
-        return redirect('choose_font')  # Next step
+        field_data = request.POST.get('coordinates')
+        if field_data:
+            original_data = json.loads(field_data)
+            # Calculate center points
+            centered_data = {}
+            for field, coords in original_data.items():
+                x = coords['x'] + coords['width'] / 2
+                y = coords['y'] + coords['height'] / 2
+                centered_data[field] = {'x': x, 'y': y}
+
+            # Save center coordinates to session
+            request.session['field_coordinates'] = centered_data
+            return redirect('choose_font')  # Proceed to next step
 
     template_path = request.session.get('template_path')
     headers = request.session.get('headers')
@@ -128,7 +138,9 @@ def generate_certificates(request):
         draw = ImageDraw.Draw(img)
 
         for field, value in row.items():
-            x, y = coordinates.get(field, (0, 0))
+            x = int(coordinates.get(field, {}).get('x', 0))
+            y = int(coordinates.get(field, {}).get('y', 0))
+
             font_info = font_settings.get(field, {'font': 'arial.ttf', 'size': 40, 'color': '#000000'})
             try:
                 font = ImageFont.truetype(font_info['font'], font_info['size'])

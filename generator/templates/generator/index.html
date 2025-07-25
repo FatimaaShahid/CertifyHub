@@ -1,21 +1,91 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Certificate Generator</title>
+  <meta charset="UTF-8">
+  <title>CertifyHub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+
+  <style>
+    body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-image: url('Static/images/image 1.png');                    /*--------------background img------------*/
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  text-align: center;
+  background: rgba(0, 0, 0, 0.4); /* Optional dark overlay */
+  padding: 40px;
+  border-radius: 10px;
+}
+
+h1 {
+  font-size: 48px;
+  margin-bottom: 30px;
+  letter-spacing: 2px;
+}
+
+h1 span {
+  font-size: 56px;
+  font-weight: bold;
+}
+
+form input[type="file"],
+form button {
+  display: block;
+  margin: 15px auto;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 30px;
+  background: #666;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+form button:hover,
+form input[type="file"]:hover {
+  background: #888;
+}
+
+form label {
+  font-size: 16px;
+  font-weight: 500;
+  color: white;
+  display: block;
+  margin-top: 20px;
+}
+
+  </style>
 </head>
 <body>
-    <h2>Upload Certificate Template & Data</h2>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <p>
-            <label for="template_file">Certificate Template (Image):</label>
-            <input type="file" name="template_file" required>
-        </p>
-        <p>
-            <label for="data_file">Data File (CSV):</label>
-            <input type="file" name="data_file" required>
-        </p>
-        <button type="submit">Next: Map Fields</button>
+
+  <div class="container">
+    <h1>WELCOME TO<br><span>CERTIFYHUB</span></h1>
+
+    <form action="" method="POST" enctype="multipart/form-data">
+       {% csrf_token %}
+
+      <label for="template-file">Upload Certificate Template (PNG, JPG, PDF):</label>
+      <input type="file" id="template-file" name="template_file" accept=".png,.jpg,.jpeg,.pdf"><br>  
+
+      <label for="data-file">Upload Participant Data (CSV or Excel):</label>                           
+      <input type="file" id="data-file" name="data_file" accept=".csv,.xlsx,.xls"><br><br>
+
+      <button type="submit">Submit</button>
+
     </form>
+  </div>
+
 </body>
 </html>

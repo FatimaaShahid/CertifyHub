@@ -1,158 +1,204 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Choose Font Settings with Live Preview</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            max-width: 1200px;
-            margin: 20px auto;
-            gap: 20px;
-        }
-        .form-container {
-            flex: 1;
-        }
-        .preview-container {
-            flex: 1;
-            position: relative;
-            border: 1px solid #ccc;
-        }
-        #templateCanvas {
-            width: 100%;
-            border: 1px solid #ddd;
-        }
-        .field-block {
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            padding: 10px;
-            border-radius: 6px;
-        }
-        select, input {
-            padding: 6px;
-            font-size: 1rem;
-            margin-top: 5px;
-            width: 100%;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Font Settings with Live Preview</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: url("static/images/image 1.png") no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .wrapper {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 50px;
+      border-radius: 16px;
+      display: flex;
+      max-width: 1600px;
+      width: 100%;
+      gap: 20px;
+    }
+
+    .form-section {
+      flex: 1;
+      background: #fff;
+      color: #000;
+      border-radius: 12px;
+      padding: 10px;
+      overflow-y: auto;
+      max-height: 80vh;
+    }
+
+    .form-section h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 30px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 6px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    select, input[type="number"], input[type="color"] {
+      width: 100%;
+      padding: 8px;
+      font-size: 14px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .preview-section {
+      flex: 1;
+      background: #fff;
+      border-radius: 12px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .preview-section h3 {
+      margin-bottom: 10px;
+    }
+
+    #templateCanvas {
+      width: 100%;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 16px;
+      background: #666;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #888;
+    }
+  </style>
 </head>
 <body>
-    <div class="form-container">
-        <h2>🖋️ Font Settings for Each Field</h2>
-        <form method="post" id="fontForm">
-            {% csrf_token %}
-            {% for field in fields %}
-                <div class="field-block" data-field="{{ field }}">
-                    <h4>{{ field }}</h4>
-                    <label>Font Style:
-                        <select name="{{ field }}_font" class="font-select" data-field="{{ field }}">
-                            <option value="arial.ttf">Arial</option>
-                            <option value="times.ttf">Times New Roman</option>
-                            <option value="calibri.ttf">Calibri</option>
-                        </select>
-                    </label>
-                    <br><br>
-                    <label>Font Size:
-                        <input type="number" name="{{ field }}_size" class="size-input" data-field="{{ field }}" value="40" min="10" max="100">
-                    </label>
-                    <br><br>
-                    <label>Font Color:
-                        <input type="color" name="{{ field }}_color" class="color-input" data-field="{{ field }}" value="#000000">
-                    </label>
-                </div>
-            {% endfor %}
-            <button type="submit">Finalize and Generate</button>
-        </form>
-    </div>
 
-    <div class="preview-container">
-        <h3 style="text-align:center;">Live Preview</h3>
+  <form method="POST" id="fontForm">
+    {% csrf_token %}
+    <div class="wrapper">
+
+      <!-- Left Side: Dynamic Font Controls -->
+      <div class="form-section">
+        <h2>🖊️ Font Settings for Each Field</h2>
+        {% for field in fields %}
+          <div class="form-group" data-field="{{ field }}">
+            <label><strong>{{ field }}</strong></label>
+
+            <label>Font Style:</label>
+            <select name="{{ field }}_font" class="font-select" data-field="{{ field }}">
+              <option value="arial.ttf">Arial</option>
+              <option value="times.ttf">Times New Roman</option>
+              <option value="calibri.ttf">Calibri</option>
+            </select>
+
+            <label>Font Size:</label>
+            <input type="number" name="{{ field }}_size" class="size-input" data-field="{{ field }}" value="40" min="10" max="100">
+
+            <label>Font Color:</label>
+            <input type="color" name="{{ field }}_color" class="color-input" data-field="{{ field }}" value="#000000">
+          </div>
+        {% endfor %}
+        <button type="submit">Finalize and Generate</button>
+      </div>
+
+      <!-- Right Side: Canvas Preview -->
+      <div class="preview-section">
+        <h3>Live Preview</h3>
         <canvas id="templateCanvas"></canvas>
+      </div>
+
     </div>
+  </form>
 
-    <script>
-        // Pass fields and coordinates from Django context to JS
-        const fields = {{ fields|safe }};
-        const coordinates = {{ coordinates|safe }};
-        const templateUrl = "{{ template_url }}";
+  <script>
+    const fields = {{ fields|safe }};
+    const coordinates = {{ coordinates|safe }};
+    const templateUrl = "{{ template_url }}";
 
-        const canvas = document.getElementById('templateCanvas');
-        const ctx = canvas.getContext('2d');
+    const canvas = document.getElementById('templateCanvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
 
-        const img = new Image();
+    const fontSettings = {};
+    fields.forEach(field => {
+      fontSettings[field] = { font: 'arial.ttf', size: 40, color: '#000000' };
+    });
 
-        // Store font settings for each field for preview
-        const fontSettings = {};
+    img.onload = () => {
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      drawPreview();
+    };
+    img.src = templateUrl;
 
-        // Initialize fontSettings with defaults
-        fields.forEach(field => {
-            fontSettings[field] = {font: 'arial.ttf', size: 40, color: '#000000'};
-        });
+    function drawPreview() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
 
-        img.onload = () => {
-            // Set canvas size exactly to image natural size
-            canvas.width = img.naturalWidth;
-            canvas.height = img.naturalHeight;
+      fields.forEach(field => {
+        const coord = coordinates[field];
+        if (!coord) return;
 
-            drawPreview();
-        };
+        const { font, size, color } = fontSettings[field];
+        let cssFont = 'Arial';
+        if (font === 'times.ttf') cssFont = 'Times New Roman';
+        else if (font === 'calibri.ttf') cssFont = 'Calibri';
 
-        img.onerror = () => {
-            console.error('Error loading template image:', templateUrl);
-        };
+        ctx.font = `${size}px ${cssFont}`;
+        ctx.fillStyle = color;
+        ctx.fillText(field, coord.x, coord.y);
+      });
+    }
 
-        img.src = templateUrl;
+    document.querySelectorAll('.font-select').forEach(select => {
+      select.addEventListener('change', e => {
+        const field = e.target.dataset.field;
+        fontSettings[field].font = e.target.value;
+        drawPreview();
+      });
+    });
 
-        function drawPreview() {
-            // Clear canvas and draw background image
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0);
+    document.querySelectorAll('.size-input').forEach(input => {
+      input.addEventListener('input', e => {
+        const field = e.target.dataset.field;
+        fontSettings[field].size = Number(e.target.value) || 40;
+        drawPreview();
+      });
+    });
 
-            // For each field, draw the field name at stored coordinate with chosen font and color
-            fields.forEach(field => {
-                const coord = coordinates[field];
-                if (!coord) return;
+    document.querySelectorAll('.color-input').forEach(input => {
+      input.addEventListener('input', e => {
+        const field = e.target.dataset.field;
+        fontSettings[field].color = e.target.value;
+        drawPreview();
+      });
+    });
+  </script>
 
-                const {font, size, color} = fontSettings[field];
-
-                // Map TTF font filename to CSS font family
-                let cssFont = 'Arial';
-                if (font === 'times.ttf') cssFont = 'Times New Roman';
-                else if (font === 'calibri.ttf') cssFont = 'Calibri';
-
-                ctx.font = `${size}px ${cssFont}`;
-                ctx.fillStyle = color;
-                ctx.fillText(field, coord[0], coord[1]);
-            });
-        }
-
-        // Event listeners for font style changes
-        document.querySelectorAll('.font-select').forEach(select => {
-            select.addEventListener('change', e => {
-                const field = e.target.dataset.field;
-                fontSettings[field].font = e.target.value;
-                drawPreview();
-            });
-        });
-
-        // Event listeners for font size changes
-        document.querySelectorAll('.size-input').forEach(input => {
-            input.addEventListener('input', e => {
-                const field = e.target.dataset.field;
-                const val = Number(e.target.value);
-                fontSettings[field].size = val > 0 ? val : 40; // default to 40 if invalid
-                drawPreview();
-            });
-        });
-
-        // Event listeners for font color changes
-        document.querySelectorAll('.color-input').forEach(input => {
-            input.addEventListener('input', e => {
-                const field = e.target.dataset.field;
-                fontSettings[field].color = e.target.value;
-                drawPreview();
-            });
-        });
-    </script>
 </body>
 </html>
