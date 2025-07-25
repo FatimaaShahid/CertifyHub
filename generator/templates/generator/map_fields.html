@@ -50,8 +50,12 @@
 
         function handleClick(event) {
             const rect = image.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const y = event.clientY - rect.top;
+            const scaleX = image.naturalWidth / image.clientWidth;
+            const scaleY = image.naturalHeight / image.clientHeight;
+
+            const x = Math.round((event.clientX - rect.left) * scaleX);
+            const y = Math.round((event.clientY - rect.top) * scaleY);
+
 
             const field = fields[currentIndex];
             mapping[field] = [Math.round(x), Math.round(y)];
