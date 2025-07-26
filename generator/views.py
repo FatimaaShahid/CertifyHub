@@ -64,6 +64,60 @@ def map_fields(request):
         'headers': json.dumps(headers),
         'template_url': template_url,
     })
+# Font family → style → TTF file mapping
+FONT_FILES = {
+    'Roboto': {
+        'normal': 'Roboto-Regular.ttf',
+        'bold': 'Roboto-Bold.ttf',
+        'italic': 'Roboto-Italic.ttf',
+        'bold_italic': 'Roboto-BoldItalic.ttf',
+    },
+    'Pacifico': {
+        'normal': 'Pacifico-Regular.ttf',
+    },
+    'Playfair Display': {
+        'normal': 'PlayfairDisplay-Regular.ttf',
+        'italic': 'PlayfairDisplay-Italic.ttf',
+    },
+    'Caveat': {
+        'normal': 'Caveat-VariableFont_wght.ttf',
+    },
+    'Great Vibes': {
+        'normal': 'GreatVibes-Regular.ttf',
+    },
+    'Raleway': {
+        'normal': 'Raleway-VariableFont_wght.ttf',
+        'italic': 'Raleway-Italic-VariableFont_wght.ttf',
+    },
+    'Poppins': {
+        'normal': 'Poppins-Regular.ttf',
+        'bold': 'Poppins-Bold.ttf',
+        'italic': 'Poppins-Italic.ttf',
+    },
+    'Dancing Script': {
+        'normal': 'DancingScript-VariableFont_wght.ttf',
+    },
+    'Oswald': {
+        'normal': 'Oswald-VariableFont_wght.ttf',
+    },
+}
+def get_font_path(font_family, bold, italic):
+    style = 'normal'
+    if bold and italic:
+        style = 'bold_italic'
+    elif bold:
+        style = 'bold'
+    elif italic:
+        style = 'italic'
+
+    font_styles = FONT_FILES.get(font_family, {})
+    font_file = font_styles.get(style) or font_styles.get('normal')
+
+    if not font_file:
+        return os.path.join(settings.BASE_DIR, 'static/fonts/Roboto-Regular.ttf')  # fallback
+
+    return os.path.join(settings.BASE_DIR, 'static/fonts', font_file)
+
 
 def choose_font(request):
     template_path = request.session.get('template_path')
@@ -79,11 +133,20 @@ def choose_font(request):
         for field in headers:
             font = request.POST.get(f"{field}_font")
             size = request.POST.get(f"{field}_size")
+            try:
+                size = int(size)
+            except (TypeError, ValueError):
+                size = 40
             color = request.POST.get(f"{field}_color")
+            bold = request.POST.get(f"{field}_bold") == 'on'
+            italic = request.POST.get(f"{field}_italic") == 'on'
             font_settings[field] = {
                 'font': font,
                 'size': int(size),
-                'color': color
+                'color': color,
+                'bold' : bold,
+                'italic' : italic
+
             }
 
         request.session['font_settings'] = font_settings
@@ -141,17 +204,35 @@ def generate_certificates(request):
             x = int(coordinates.get(field, {}).get('x', 0))
             y = int(coordinates.get(field, {}).get('y', 0))
 
-            font_info = font_settings.get(field, {'font': 'arial.ttf', 'size': 40, 'color': '#000000'})
+            # Get font settings with default fallback
+            font_info = font_settings.get(field)
+            if not font_info:
+                # Default font settings if none provided
+                font_info = {
+                    'font': 'Roboto',
+                    'size': 40,
+                    'color': '#000000',
+                    'bold': False,
+                    'italic': False
+                }
+
+            font_path = get_font_path(font_info['font'], font_info.get('bold'), font_info.get('italic'))
+
+
             try:
-                font = ImageFont.truetype(font_info['font'], font_info['size'])
-            except:
+                font = ImageFont.truetype(font_path, font_info['size'])
+            except Exception as e:
+                print(f"Font load error for {font_info['font']}: {e}" )
                 font = ImageFont.load_default()
+            print(font,field)
+
             rgb_color = hex_to_rgb(font_info.get('color', '#000000'))
             draw.text((x, y), value, fill=rgb_color, font=font)
 
-        safe_name = row.get('Name', f"user_{index+1}").replace(' ', '_')
-        output_path = f"output/certificate_{index+1}_{safe_name}.pdf"
-        img.save(output_path, "PDF")
+
+            safe_name = row.get('Name', f"user_{index+1}").replace(' ', '_')
+            output_path = f"output/certificate_{index+1}_{safe_name}.pdf"
+            img.save(output_path, "PDF")
 
     return render(request, 'generator/success.html')
 

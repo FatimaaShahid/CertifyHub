@@ -93,8 +93,95 @@
 
     button:hover {
       background: #888;
+      @font-face {
+  font-family: 'Caveat';
+  src: url('/static/fonts/Caveat-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900; /* variable font weight range */
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Dancing Script';
+  src: url('/static/fonts/DancingScript-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Great Vibes';
+  src: url('/static/fonts/GreatVibes-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Oswald';
+  src: url('/static/fonts/Oswald-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Pacifico';
+  src: url('/static/fonts/Pacifico-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Playfair Display';
+  src: url('/static/fonts/PlayfairDisplay-Italic-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('/static/fonts/Poppins-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('/static/fonts/Poppins-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('/static/fonts/Poppins-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Raleway';
+  src: url('/static/fonts/Raleway-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Raleway';
+  src: url('/static/fonts/Raleway-Italic-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('/static/fonts/Roboto-VariableFont_wdth,wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+}
+
     }
   </style>
+  <!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Caveat&family=Dancing+Script&family=Great+Vibes&family=Pacifico&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Poppins:wght@400;700&family=Raleway:wght@400;700&family=Roboto:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+
 </head>
 <body>
 
@@ -109,12 +196,24 @@
           <div class="form-group" data-field="{{ field }}">
             <label><strong>{{ field }}</strong></label>
 
-            <label>Font Style:</label>
-            <select name="{{ field }}_font" class="font-select" data-field="{{ field }}">
-              <option value="arial.ttf">Arial</option>
-              <option value="times.ttf">Times New Roman</option>
-              <option value="calibri.ttf">Calibri</option>
-            </select>
+              <label>Font Style:</label>
+              <select name="{{ field }}_font" class="font-select" data-field="{{ field }}">
+                <option value="Roboto" selected>Roboto</option>
+                <option value="Playfair Display">Playfair Display</option>
+                <option value="Pacifico">Pacifico</option>
+                <option value="Caveat">Caveat</option>
+                <option value="Great Vibes">Great Vibes</option>
+                <option value="Raleway">Raleway</option>
+                <option value="Poppins">Poppins</option>
+                <option value="Dancing Script">Dancing Script</option>
+                <option value="Oswald">Oswald</option>
+              </select>
+              <div style="margin-top:10px;">
+                <label><input type="checkbox" class="bold-toggle" data-field="{{ field }}"> Bold</label>
+                <label><input type="checkbox" class="italic-toggle" data-field="{{ field }}"> Italic</label>
+              </div>
+
+
 
             <label>Font Size:</label>
             <input type="number" name="{{ field }}_size" class="size-input" data-field="{{ field }}" value="40" min="10" max="100">
@@ -144,10 +243,49 @@
     const ctx = canvas.getContext('2d');
     const img = new Image();
 
-    const fontSettings = {};
-    fields.forEach(field => {
-      fontSettings[field] = { font: 'arial.ttf', size: 40, color: '#000000' };
-    });
+  const fontSettings = {};
+  fields.forEach(field => {
+    const font = document.querySelector(`select.font-select[data-field="${field}"]`).value;
+    const size = Number(document.querySelector(`input.size-input[data-field="${field}"]`).value);
+    const color = document.querySelector(`input.color-input[data-field="${field}"]`).value;
+    const bold = document.querySelector(`.bold-toggle[data-field="${field}"]`).checked;
+    const italic = document.querySelector(`.italic-toggle[data-field="${field}"]`).checked;
+
+    fontSettings[field] = { font, size, color, bold, italic };
+  });
+
+  function initializeFontSettings() {
+  fields.forEach(field => {
+    const fontInput = document.querySelector(`select.font-select[data-field="${field}"]`);
+    const sizeInput = document.querySelector(`input.size-input[data-field="${field}"]`);
+    const colorInput = document.querySelector(`input.color-input[data-field="${field}"]`);
+    const boldInput = document.querySelector(`.bold-toggle[data-field="${field}"]`);
+    const italicInput = document.querySelector(`.italic-toggle[data-field="${field}"]`);
+
+    if (!fontInput.value) fontInput.value = 'Roboto';
+    if (!sizeInput.value || isNaN(sizeInput.value)) sizeInput.value = 40;
+    if (!colorInput.value) colorInput.value = '#000000';
+    if (boldInput.checked === undefined) boldInput.checked = false;
+    if (italicInput.checked === undefined) italicInput.checked = false;
+
+    fontSettings[field] = {
+      font: fontInput.value || 'Roboto',
+      size: Number(sizeInput.value) || 40,
+      color: colorInput.value || '#000000',
+      bold: boldInput.checked || false,
+      italic: italicInput.checked || false,
+    };
+  });
+}
+
+initializeFontSettings();
+
+
+document.fonts.ready.then(() => {
+  drawPreview();
+});
+
+
 
     img.onload = () => {
       canvas.width = img.naturalWidth;
@@ -164,12 +302,15 @@
         const coord = coordinates[field];
         if (!coord) return;
 
-        const { font, size, color } = fontSettings[field];
-        let cssFont = 'Arial';
-        if (font === 'times.ttf') cssFont = 'Times New Roman';
-        else if (font === 'calibri.ttf') cssFont = 'Calibri';
+        const { font, size, color, bold, italic } = fontSettings[field];
+        let weight = bold ? '700' : '400';
+        let style = italic ? 'italic' : 'normal';
+        let cssFont=font;
+        // if (font === 'times.ttf') cssFont = 'Times New Roman';
+        // else if (font === 'calibri.ttf') cssFont = 'Calibri';
 
-        ctx.font = `${size}px ${cssFont}`;
+        ctx.font = `${italic ? 'italic ' : ''}${bold ? 'bold ' : ''}${size}px '${cssFont}'`;
+
         ctx.fillStyle = color;
         ctx.fillText(field, coord.x, coord.y);
       });
@@ -198,6 +339,41 @@
         drawPreview();
       });
     });
+
+    document.querySelectorAll('.bold-toggle').forEach(input => {
+      input.addEventListener('change', e => {
+        const field = e.target.dataset.field;
+        fontSettings[field].bold = e.target.checked;
+        drawPreview();
+      });
+    });
+
+    document.querySelectorAll('.italic-toggle').forEach(input => {
+      input.addEventListener('change', e => {
+        const field = e.target.dataset.field;
+        fontSettings[field].italic = e.target.checked;
+        drawPreview();
+      });
+    });
+    document.querySelectorAll('.form-group').forEach(group => {
+      const field = group.dataset.field;
+
+      const font = group.querySelector('.font-select')?.value || 'Roboto';
+      const size = parseInt(group.querySelector('.size-input')?.value) || 40;
+      const color = group.querySelector('.color-input')?.value || '#000000';
+      const bold = group.querySelector('.bold-toggle')?.checked || false;
+      const italic = group.querySelector('.italic-toggle')?.checked || false;
+
+      fontSettings[field] = {
+        font,
+        size,
+        color,
+        bold,
+        italic
+      };
+    });
+
+
   </script>
 
 </body>
