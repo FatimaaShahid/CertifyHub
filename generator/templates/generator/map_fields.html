@@ -164,7 +164,13 @@
       const width = Math.abs(pos.x - startX);
       const height = Math.abs(pos.y - startY);
 
-      coords[fields[currentIndex]] = { x: Math.round(x), y: Math.round(y), width: Math.round(width), height: Math.round(height) };
+      coords[fields[currentIndex]] = {
+  x: Math.round(x + width / 2),    // Center X
+  y: Math.round(y + height / 2),   // Center Y
+  width: Math.round(width),
+  height: Math.round(height),
+  default_font_size: Math.round(height)  // Optional: auto font size suggestion
+};
 
       if (currentIndex < fields.length - 1) {
         currentIndex++;

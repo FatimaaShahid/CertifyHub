@@ -44,9 +44,16 @@ def map_fields(request):
             # Calculate center points
             centered_data = {}
             for field, coords in original_data.items():
-                x = coords['x'] + coords['width'] / 2
-                y = coords['y'] + coords['height'] / 2
-                centered_data[field] = {'x': x, 'y': y}
+                x_center = coords['x'] + coords['width'] / 2
+                y_center = coords['y'] + coords['height'] / 2
+                centered_data[field] = {
+                    'x': x_center,
+                    'y': y_center,
+                    'width': coords['width'],
+                    'height': coords['height'],
+                    'default_font_size': coords['height']  # New
+                }
+
 
             # Save center coordinates to session
             request.session['field_coordinates'] = centered_data
@@ -202,42 +209,51 @@ def generate_certificates(request):
     for index, row in enumerate(csv_data):
         img = Image.open(os.path.join(settings.MEDIA_ROOT, template_path)).convert("RGB")
         draw = ImageDraw.Draw(img)
-
         for field, value in row.items():
-            x = int(coordinates.get(field, {}).get('x', 0))
-            y = int(coordinates.get(field, {}).get('y', 0))
+            field_coords = coordinates.get(field, {})
+            x = int(field_coords.get('x', 0))
+            y = int(field_coords.get('y', 0))
+            width = int(field_coords.get('width', 200))
+            height = int(field_coords.get('height', 50))
 
             # Get font settings with default fallback
-            font_info = font_settings.get(field)
-            if not font_info:
-                # Default font settings if none provided
-                font_info = {
-                    'font': 'Roboto',
-                    'size': 40,
-                    'color': '#000000',
-                    'bold': False,
-                    'italic': False
-                }
+            font_info = font_settings.get(field, {
+                'font': 'Roboto',
+                'size': 40,
+                'color': '#000000',
+                'bold': False,
+                'italic': False
+            })
 
             font_path = get_font_path(font_info['font'], font_info.get('bold'), font_info.get('italic'))
-
-
-            try:
-                font = ImageFont.truetype(font_path, font_info['size'])
-            except Exception as e:
-                print(f"Font load error for {font_info['font']}: {e}" )
-                font = ImageFont.load_default()
-            print(font,field)
-
+            desired_size = int(font_info['size'])
             rgb_color = hex_to_rgb(font_info.get('color', '#000000'))
-            text_bbox = draw.textbbox((0, 0), value, font=font)
-            text_width = text_bbox[2] - text_bbox[0]
-            text_height = text_bbox[3] - text_bbox[1]
 
-            centered_x = x - text_width / 2
-            centered_y = y - text_height / 2
+            # Font size reduction loop
+            current_size = desired_size
+            while current_size >= 5:
+                try:
+                    font = ImageFont.truetype(font_path, current_size)
+                except Exception as e:
+                    print(f"Font load error for {font_info['font']} size {current_size}: {e}")
+                    font = ImageFont.load_default()
 
-            draw.text((centered_x, centered_y), value, fill=rgb_color, font=font)
+                text_bbox = draw.textbbox((0, 0), value, font=font)
+                text_width = text_bbox[2] - text_bbox[0]
+                text_height = text_bbox[3] - text_bbox[1]
+
+                if text_width <= width and text_height <= height:
+                    break
+                current_size -= 1
+
+            # Final bottom-left coordinates (mimic JS logic)
+            text_x = x - width
+            text_y = y   # bottom edge
+
+            draw.text((text_x, text_y), value, fill=rgb_color, font=font, anchor="ls")
+        
+            print(font_info['size'],field)
+
 
 
 

@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Font Settings with Live Preview</title>
+  {% load dict_extras %}
 
   {% load static %}
 
@@ -229,11 +230,20 @@
 
 
             <label>Font Size:</label>
-            <input type="number" name="{{ field }}_size" class="size-input" data-field="{{ field }}" value="40" min="10" max="100">
+            <input type="number" 
+       name="{{ field }}_size" 
+       class="size-input" 
+       data-field="{{ field }}" 
+       value="{{ coordinates|get_item:field|get_item:'default_font_size'|default:40|floatformat:0 }}" 
+       min="5" max="300">
+
 
             <label>Font Color:</label>
             <input type="color" name="{{ field }}_color" class="color-input" data-field="{{ field }}" value="#000000">
+            
+
           </div>
+
         {% endfor %}
         <button type="submit">Finalize and Generate</button>
         <button type="submit" name="action" value="back">← Back to Map Fields</button>
@@ -248,27 +258,40 @@
     </div>
   </form>
 
-  <script>
-    const fields = {{ fields|safe }};
-    const coordinates = {{ coordinates|safe }};
-    const templateUrl = "{{ template_url }}";
+<script>
+const fields = {{ fields|safe }};
+const coordinates = {{ coordinates|safe }};
+const templateUrl = "{{ template_url }}";
 
-    const canvas = document.getElementById('templateCanvas');
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
+const canvas = document.getElementById('templateCanvas');
+const ctx = canvas.getContext('2d');
+const img = new Image();
 
-  const fontSettings = {};
+const fontSettings = {};
+
+function applyDefaultSizes() {
   fields.forEach(field => {
-    const font = document.querySelector(`select.font-select[data-field="${field}"]`).value;
-    const size = Number(document.querySelector(`input.size-input[data-field="${field}"]`).value);
-    const color = document.querySelector(`input.color-input[data-field="${field}"]`).value;
-    const bold = document.querySelector(`.bold-toggle[data-field="${field}"]`).checked;
-    const italic = document.querySelector(`.italic-toggle[data-field="${field}"]`).checked;
-
-    fontSettings[field] = { font, size, color, bold, italic };
+    const sizeInput = document.querySelector(`input.size-input[data-field="${field}"]`);
+    if (!sizeInput.value || isNaN(sizeInput.value)) {
+      const defaultSize = coordinates[field]?.default_font_size;
+      sizeInput.value = defaultSize || 40;
+    }
   });
+}
 
-  function initializeFontSettings() {
+applyDefaultSizes();
+
+fields.forEach(field => {
+  const font = document.querySelector(`select.font-select[data-field="${field}"]`).value;
+  const size = Number(document.querySelector(`input.size-input[data-field="${field}"]`).value);
+  const color = document.querySelector(`input.color-input[data-field="${field}"]`).value;
+  const bold = document.querySelector(`.bold-toggle[data-field="${field}"]`).checked;
+  const italic = document.querySelector(`.italic-toggle[data-field="${field}"]`).checked;
+
+  fontSettings[field] = { font, size, color, bold, italic };
+});
+
+function initializeFontSettings() {
   fields.forEach(field => {
     const fontInput = document.querySelector(`select.font-select[data-field="${field}"]`);
     const sizeInput = document.querySelector(`input.size-input[data-field="${field}"]`);
@@ -294,101 +317,93 @@
 
 initializeFontSettings();
 
-
 document.fonts.ready.then(() => {
   drawPreview();
 });
 
+img.onload = () => {
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  drawPreview();
+};
+img.src = templateUrl;
 
+function drawPreview() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img, 0, 0);
 
-    img.onload = () => {
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      drawPreview();
-    };
-    img.src = templateUrl;
+  fields.forEach(field => {
+    const coord = coordinates[field];
+    if (!coord) return;
 
-    function drawPreview() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0);
+    const { font, size, color, bold, italic } = fontSettings[field];
+    ctx.font = `${italic ? 'italic ' : ''}${bold ? 'bold ' : ''}${size}px '${font}'`;
+    ctx.fillStyle = color;
+    ctx.fillText(field, coord.x - coord.width, coord.y );
+    
 
-      fields.forEach(field => {
-        const coord = coordinates[field];
-        if (!coord) return;
+  });
+}
 
-        const { font, size, color, bold, italic } = fontSettings[field];
-        let weight = bold ? '700' : '400';
-        let style = italic ? 'italic' : 'normal';
-        let cssFont=font;
-        // if (font === 'times.ttf') cssFont = 'Times New Roman';
-        // else if (font === 'calibri.ttf') cssFont = 'Calibri';
+document.querySelectorAll('.font-select').forEach(select => {
+  select.addEventListener('change', e => {
+    const field = e.target.dataset.field;
+    fontSettings[field].font = e.target.value;
+    drawPreview();
+  });
+});
 
-        ctx.font = `${italic ? 'italic ' : ''}${bold ? 'bold ' : ''}${size}px '${cssFont}'`;
+document.querySelectorAll('.size-input').forEach(input => {
+  input.addEventListener('input', e => {
+    const field = e.target.dataset.field;
+    fontSettings[field].size = Number(e.target.value) || 40;
+    drawPreview();
+  });
+});
 
-        ctx.fillStyle = color;
-        ctx.fillText(field, coord.x, coord.y);
-      });
-    }
+document.querySelectorAll('.color-input').forEach(input => {
+  input.addEventListener('input', e => {
+    const field = e.target.dataset.field;
+    fontSettings[field].color = e.target.value;
+    drawPreview();
+  });
+});
 
-    document.querySelectorAll('.font-select').forEach(select => {
-      select.addEventListener('change', e => {
-        const field = e.target.dataset.field;
-        fontSettings[field].font = e.target.value;
-        drawPreview();
-      });
-    });
+document.querySelectorAll('.bold-toggle').forEach(input => {
+  input.addEventListener('change', e => {
+    const field = e.target.dataset.field;
+    fontSettings[field].bold = e.target.checked;
+    drawPreview();
+  });
+});
 
-    document.querySelectorAll('.size-input').forEach(input => {
-      input.addEventListener('input', e => {
-        const field = e.target.dataset.field;
-        fontSettings[field].size = Number(e.target.value) || 40;
-        drawPreview();
-      });
-    });
+document.querySelectorAll('.italic-toggle').forEach(input => {
+  input.addEventListener('change', e => {
+    const field = e.target.dataset.field;
+    fontSettings[field].italic = e.target.checked;
+    drawPreview();
+  });
+});
 
-    document.querySelectorAll('.color-input').forEach(input => {
-      input.addEventListener('input', e => {
-        const field = e.target.dataset.field;
-        fontSettings[field].color = e.target.value;
-        drawPreview();
-      });
-    });
+document.querySelectorAll('.form-group').forEach(group => {
+  const field = group.dataset.field;
 
-    document.querySelectorAll('.bold-toggle').forEach(input => {
-      input.addEventListener('change', e => {
-        const field = e.target.dataset.field;
-        fontSettings[field].bold = e.target.checked;
-        drawPreview();
-      });
-    });
+  const font = group.querySelector('.font-select')?.value || 'Roboto';
+  const size = parseInt(group.querySelector('.size-input')?.value) || 40;
+  const color = group.querySelector('.color-input')?.value || '#000000';
+  const bold = group.querySelector('.bold-toggle')?.checked || false;
+  const italic = group.querySelector('.italic-toggle')?.checked || false;
 
-    document.querySelectorAll('.italic-toggle').forEach(input => {
-      input.addEventListener('change', e => {
-        const field = e.target.dataset.field;
-        fontSettings[field].italic = e.target.checked;
-        drawPreview();
-      });
-    });
-    document.querySelectorAll('.form-group').forEach(group => {
-      const field = group.dataset.field;
+  fontSettings[field] = {
+    font,
+    size,
+    color,
+    bold,
+    italic
+  };
+});
+</script>
 
-      const font = group.querySelector('.font-select')?.value || 'Roboto';
-      const size = parseInt(group.querySelector('.size-input')?.value) || 40;
-      const color = group.querySelector('.color-input')?.value || '#000000';
-      const bold = group.querySelector('.bold-toggle')?.checked || false;
-      const italic = group.querySelector('.italic-toggle')?.checked || false;
-
-      fontSettings[field] = {
-        font,
-        size,
-        color,
-        bold,
-        italic
-      };
-    });
-
-
-  </script>
 
 </body>
 </html>
