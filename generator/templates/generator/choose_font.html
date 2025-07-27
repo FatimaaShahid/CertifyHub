@@ -223,8 +223,8 @@
                 <option value="Oswald">Oswald</option>
               </select>
               <div style="margin-top:10px;">
-                <label><input type="checkbox" class="bold-toggle" data-field="{{ field }}"> Bold</label>
-                <label><input type="checkbox" class="italic-toggle" data-field="{{ field }}"> Italic</label>
+                <label><input type="checkbox" class="bold-toggle" data-field="{{ field }}" name="{{ field }}_bold"> Bold</label>
+                <label><input type="checkbox" class="italic-toggle" data-field="{{ field }}" name="{{ field }}_italic"> Italic</label>
               </div>
 
 
@@ -240,10 +240,25 @@
 
             <label>Font Color:</label>
             <input type="color" name="{{ field }}_color" class="color-input" data-field="{{ field }}" value="#000000">
-            
+<label>X Coordinate:</label>
+<input type="number" 
+       name="{{ field }}_x" 
+       class="coord-x-input" 
+       data-field="{{ field }}" 
+       value="{{ coordinates|get_item:field|get_item:'x'|default:100 }}" 
+       min="0" max="100000000"   step="any"      pattern="\d*"
+       inputmode="numeric">
+
+<label>Y Coordinate:</label>
+<input type="number" 
+       name="{{ field }}_y" 
+       class="coord-y-input" 
+       data-field="{{ field }}" 
+       value="{{ coordinates|get_item:field|get_item:'y'|default:100 }}" 
+       min="0" max="100000000" step="any" pattern="\d*"
+       inputmode="numeric">
 
           </div>
-
         {% endfor %}
         <button type="submit">Finalize and Generate</button>
         <button type="submit" name="action" value="back">← Back to Map Fields</button>
@@ -339,7 +354,7 @@ function drawPreview() {
     const { font, size, color, bold, italic } = fontSettings[field];
     ctx.font = `${italic ? 'italic ' : ''}${bold ? 'bold ' : ''}${size}px '${font}'`;
     ctx.fillStyle = color;
-    ctx.fillText(field, coord.x - coord.width, coord.y );
+    ctx.fillText(field, coord.x-coord.width, coord.y );
     
 
   });
@@ -402,6 +417,35 @@ document.querySelectorAll('.form-group').forEach(group => {
     italic
   };
 });
+document.querySelectorAll('.coord-x-input, .coord-y-input').forEach(input => {
+  input.addEventListener('input', (e) => {
+    const field = e.target.dataset.field;
+    const coordType = e.target.classList.contains('coord-x-input') ? 'x' : 'y';
+
+    // Sanitize to allow only valid float numbers (digits + one decimal point)
+    let sanitized = e.target.value.replace(/[^0-9.]/g, '');
+
+    // Ensure only one decimal point is allowed
+    const parts = sanitized.split('.');
+    if (parts.length > 2) {
+      sanitized = parts[0] + '.' + parts.slice(1).join('');
+    }
+
+    e.target.value = sanitized;
+
+    const value = parseFloat(sanitized) || 0;
+
+    if (!coordinates[field]) {
+      coordinates[field] = { x: 100, y: 100 };
+    }
+
+    coordinates[field][coordType] = value;
+
+    drawPreview();
+  });
+});
+
+
 </script>
 
 
