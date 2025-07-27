@@ -4,13 +4,18 @@
   <meta charset="UTF-8">
   <title>Certificate Area Selector</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+  {% load static %}
+
   <style>
     body {
       margin: 0;
       padding: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       color: white;
-      background: url("Static/images/image 2.png") no-repeat center center fixed;
+      background-image: url("{% static 'bg_images/image2.png' %}");               
+      background-size: cover;
+      background-position: center;
       background-size: cover;
       display: flex;
       justify-content: center;
@@ -44,14 +49,7 @@
       border-radius: 12px;
       cursor: crosshair;
       max-width: 100%;
-    }
-
-    select {
-      margin-top: 15px;
-      padding: 8px;
-      font-size: 16px;
-      border-radius: 8px;
-      border: none;
+      height: auto;
     }
 
     button {
@@ -95,86 +93,90 @@
       Drag to select area for: <strong><span id="currentField">Name</span></strong>
     </div>
 
-    <!-- Certificate image drawn on canvas -->
     <canvas id="templateCanvas"></canvas>
 
-    <!-- Form to send coordinates -->
     <form method="POST">
-        {% csrf_token %}
-        <input type="hidden" name="coordinates" id="coordinatesField">
-        <button type="submit" id="submitBtn">Submit Coordinates</button>
+      {% csrf_token %}
+      <input type="hidden" name="coordinates" id="coordinatesField">
+      <button type="submit" id="submitBtn">Submit Coordinates</button>
     </form>
+  </div>
 
-    <script>
-        const fields = JSON.parse('{{ headers|escapejs }}');
-        let currentIndex = 0;
-        let coords = {};
+  <script>
+    const fields = JSON.parse('{{ headers|escapejs }}');
+    let currentIndex = 0;
+    let coords = {};
 
-        const canvas = document.getElementById("templateCanvas");
-        const ctx = canvas.getContext("2d");
-        const image = new Image();
-        image.src = "{{ template_url }}";  // ✅ This uses the dynamic image URL from Django
+    const canvas = document.getElementById("templateCanvas");
+    const ctx = canvas.getContext("2d");
+    const image = new Image();
+    image.src = "{{ template_url }}";
 
-        const currentField = document.getElementById("currentField");
-        const coordsField = document.getElementById("coordinatesField");
-        const submitBtn = document.getElementById("submitBtn");
+    const currentField = document.getElementById("currentField");
+    const coordsField = document.getElementById("coordinatesField");
+    const submitBtn = document.getElementById("submitBtn");
 
-        let startX, startY, isDrawing = false;
+    let isDrawing = false, startX = 0, startY = 0;
 
-        image.onload = function () {
-            canvas.width = image.width;
-            canvas.height = image.height;
-            ctx.drawImage(image, 0, 0);
-            currentField.innerText = fields[currentIndex];
-        };
+    function getMousePos(canvas, evt) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      return {
+        x: (evt.clientX - rect.left) * scaleX,
+        y: (evt.clientY - rect.top) * scaleY
+      };
+    }
 
-        canvas.addEventListener("mousedown", function (e) {
-            const rect = canvas.getBoundingClientRect();
-            startX = e.clientX - rect.left;
-            startY = e.clientY - rect.top;
-            isDrawing = true;
-        });
+    image.onload = function () {
+      canvas.width = image.width;
+      canvas.height = image.height;
+      ctx.drawImage(image, 0, 0);
+      currentField.innerText = fields[currentIndex];
+    };
 
-        canvas.addEventListener("mousemove", function (e) {
-            if (!isDrawing) return;
-            const rect = canvas.getBoundingClientRect();
-            const currX = e.clientX - rect.left;
-            const currY = e.clientY - rect.top;
-            const width = currX - startX;
-            const height = currY - startY;
+    canvas.addEventListener("mousedown", function (e) {
+      isDrawing = true;
+      const pos = getMousePos(canvas, e);
+      startX = pos.x;
+      startY = pos.y;
+    });
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(image, 0, 0);
-            ctx.strokeStyle = "#00ffcc";
-            ctx.lineWidth = 2;
-            ctx.strokeRect(startX, startY, width, height);
-        });
+    canvas.addEventListener("mousemove", function (e) {
+      if (!isDrawing) return;
+      const pos = getMousePos(canvas, e);
+      const width = pos.x - startX;
+      const height = pos.y - startY;
 
-        canvas.addEventListener("mouseup", function (e) {
-            isDrawing = false;
-            const rect = canvas.getBoundingClientRect();
-            const endX = e.clientX - rect.left;
-            const endY = e.clientY - rect.top;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(image, 0, 0);
+      ctx.strokeStyle = "#00ffcc";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(startX, startY, width, height);
+    });
 
-            const x = Math.min(startX, endX);
-            const y = Math.min(startY, endY);
-            const width = Math.abs(endX - startX);
-            const height = Math.abs(endY - startY);
+    canvas.addEventListener("mouseup", function (e) {
+      isDrawing = false;
+      const pos = getMousePos(canvas, e);
 
-            const field = fields[currentIndex];
-            coords[field] = { x, y, width, height };
+      const x = Math.min(startX, pos.x);
+      const y = Math.min(startY, pos.y);
+      const width = Math.abs(pos.x - startX);
+      const height = Math.abs(pos.y - startY);
 
-            if (currentIndex < fields.length - 1) {
-                currentIndex++;
-                currentField.innerText = fields[currentIndex];
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(image, 0, 0);
-            } else {
-                document.getElementById("instruction").innerHTML = "✅ All fields selected!";
-                coordsField.value = JSON.stringify(coords);
-                submitBtn.style.display = "inline-block";
-            }
-        });
-    </script>
+      coords[fields[currentIndex]] = { x: Math.round(x), y: Math.round(y), width: Math.round(width), height: Math.round(height) };
+
+      if (currentIndex < fields.length - 1) {
+        currentIndex++;
+        currentField.innerText = fields[currentIndex];
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(image, 0, 0);
+      } else {
+        document.getElementById("instruction").innerHTML = "✅ All fields selected!";
+        coordsField.value = JSON.stringify(coords);
+        submitBtn.style.display = "inline-block";
+      }
+    });
+  </script>
 </body>
 </html>

@@ -5,13 +5,17 @@
   <title>Success</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
+  {% load static %}
+
   <style>
     body {
       margin: 0;
       padding: 0;
       font-family: 'Inter', sans-serif;
       color:white;
-      background: url("Static/images/image 3.png") no-repeat center center fixed;          /*-------------------------------*/
+      background-image: url("{% static 'bg_images/image4.png' %}");               
+      background-size: cover;
+      background-position: center;          
       background-size: cover;
       height: 100vh;
       position: relative;

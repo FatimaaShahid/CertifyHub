@@ -3,181 +3,194 @@
 <head>
   <meta charset="UTF-8">
   <title>Font Settings with Live Preview</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: url("static/images/image 1.png") no-repeat center center fixed;
-      background-size: cover;
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
 
-    .wrapper {
-      background: rgba(0, 0, 0, 0.4);
-      padding: 50px;
-      border-radius: 16px;
-      display: flex;
-      max-width: 1600px;
-      width: 100%;
-      gap: 20px;
-    }
+  {% load static %}
 
-    .form-section {
-      flex: 1;
-      background: #fff;
-      color: #000;
-      border-radius: 12px;
-      padding: 10px;
-      overflow-y: auto;
-      max-height: 80vh;
-    }
+<style>
 
-    .form-section h2 {
-      font-size: 20px;
-      margin-bottom: 20px;
-    }
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-image: url("{% static 'bg_images/image3.png' %}");
+    background-size: cover;
+    background-position: center;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
 
-    .form-group {
-      margin-bottom: 30px;
-      border: 1px solid #ccc;
-      padding: 10px;
-      border-radius: 6px;
-    }
+  .wrapper {
+    background: rgba(0, 0, 0, 0.6); /* Darker overlay */
+    padding: 15px;
+    border-radius: 16px;
+    display: flex;
+    max-width: 1600px;
+    width: 100%;
+    gap: 20px;
+  }
 
-    label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
+  .form-section, .preview-section {
+    flex: 1;
+    background: #1e1e1e; /* Dark background */
+    color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    overflow-y: auto;
+    max-height: 80vh;
+  }
 
-    select, input[type="number"], input[type="color"] {
-      width: 100%;
-      padding: 8px;
-      font-size: 14px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
+  .form-section h2,
+  .preview-section h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #fff;
+  }
 
-    .preview-section {
-      flex: 1;
-      background: #fff;
-      border-radius: 12px;
-      padding: 10px;
-      text-align: center;
-    }
+  .form-group {
+    margin-bottom: 30px;
+    border: 1px solid #555;
+    padding: 10px;
+    border-radius: 6px;
+    background: #2a2a2a;
+  }
 
-    .preview-section h3 {
-      margin-bottom: 10px;
-    }
+  label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 6px;
+    font-size: 14px;
+  }
 
-    #templateCanvas {
-      width: 100%;
-      border: 1px solid #ccc;
-    }
+  input[type="number"],
+  input[type="color"],
+  select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: #333;
+    color: #fff;
+  }
 
-    button {
-      margin-top: 20px;
-      padding: 12px 24px;
-      font-size: 16px;
-      background: #666;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
+  input[type="color"] {
+    height: 40px;
+  }
 
-    button:hover {
-      background: #888;
-      @font-face {
-  font-family: 'Caveat';
-  src: url('/static/fonts/Caveat-VariableFont_wght.ttf') format('truetype');
-  font-weight: 100 900; /* variable font weight range */
-  font-style: normal;
-}
+  .preview-section {
+    text-align: center;
+  }
 
-@font-face {
-  font-family: 'Dancing Script';
-  src: url('/static/fonts/DancingScript-VariableFont_wght.ttf') format('truetype');
-  font-weight: 100 900;
-  font-style: normal;
-}
+  #templateCanvas {
+    width: 100%;
+    border: 1px solid #888;
+    background: #fff;
+  }
 
-@font-face {
-  font-family: 'Great Vibes';
-  src: url('/static/fonts/GreatVibes-Regular.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-}
+  button {
+    margin-top: 20px;
+    padding: 12px 24px;
+    font-size: 16px;
+    background: #666;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
 
-@font-face {
-  font-family: 'Oswald';
-  src: url('/static/fonts/Oswald-VariableFont_wght.ttf') format('truetype');
-  font-weight: 100 900;
-  font-style: normal;
-}
+  button:hover {
+    background: #888;
+  }
 
-@font-face {
-  font-family: 'Pacifico';
-  src: url('/static/fonts/Pacifico-Regular.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-}
+  @font-face {
+    font-family: 'Caveat';
+    src: url('/static/fonts/Caveat-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: normal;
+  }
 
-@font-face {
-  font-family: 'Playfair Display';
-  src: url('/static/fonts/PlayfairDisplay-Italic-VariableFont_wght.ttf') format('truetype');
-  font-weight: 100 900;
-  font-style: italic;
-}
+  @font-face {
+    font-family: 'Dancing Script';
+    src: url('/static/fonts/DancingScript-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: normal;
+  }
 
-@font-face {
-  font-family: 'Poppins';
-  src: url('/static/fonts/Poppins-Regular.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-}
+  @font-face {
+    font-family: 'Great Vibes';
+    src: url('/static/fonts/GreatVibes-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+  }
 
-@font-face {
-  font-family: 'Poppins';
-  src: url('/static/fonts/Poppins-Bold.ttf') format('truetype');
-  font-weight: 700;
-  font-style: normal;
-}
+  @font-face {
+    font-family: 'Oswald';
+    src: url('/static/fonts/Oswald-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: normal;
+  }
 
-@font-face {
-  font-family: 'Poppins';
-  src: url('/static/fonts/Poppins-Italic.ttf') format('truetype');
-  font-weight: 400;
-  font-style: italic;
-}
+  @font-face {
+    font-family: 'Pacifico';
+    src: url('/static/fonts/Pacifico-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+  }
 
-@font-face {
-  font-family: 'Raleway';
-  src: url('/static/fonts/Raleway-VariableFont_wght.ttf') format('truetype');
-  font-weight: 100 900;
-  font-style: normal;
-}
+  @font-face {
+    font-family: 'Playfair Display';
+    src: url('/static/fonts/PlayfairDisplay-Italic-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: italic;
+  }
 
-@font-face {
-  font-family: 'Raleway';
-  src: url('/static/fonts/Raleway-Italic-VariableFont_wght.ttf') format('truetype');
-  font-weight: 100 900;
-  font-style: italic;
-}
+  @font-face {
+    font-family: 'Poppins';
+    src: url('/static/fonts/Poppins-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+  }
 
-@font-face {
-  font-family: 'Roboto';
-  src: url('/static/fonts/Roboto-VariableFont_wdth,wght.ttf') format('truetype');
-  font-weight: 100 900;
-  font-style: normal;
-}
+  @font-face {
+    font-family: 'Poppins';
+    src: url('/static/fonts/Poppins-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+  }
 
-    }
+  @font-face {
+    font-family: 'Poppins';
+    src: url('/static/fonts/Poppins-Italic.ttf') format('truetype');
+    font-weight: 400;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: 'Raleway';
+    src: url('/static/fonts/Raleway-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: 'Raleway';
+    src: url('/static/fonts/Raleway-Italic-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: 'Roboto';
+    src: url('/static/fonts/Roboto-VariableFont_wdth,wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: normal;
+  }
+
+      
   </style>
   <!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Caveat&family=Dancing+Script&family=Great+Vibes&family=Pacifico&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Poppins:wght@400;700&family=Raleway:wght@400;700&family=Roboto:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -223,6 +236,7 @@
           </div>
         {% endfor %}
         <button type="submit">Finalize and Generate</button>
+        <button type="submit" name="action" value="back">← Back to Map Fields</button>
       </div>
 
       <!-- Right Side: Canvas Preview -->

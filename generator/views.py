@@ -129,6 +129,9 @@ def choose_font(request):
         return redirect('upload_files')
 
     if request.method == 'POST':
+        if request.POST.get('action') == 'back':
+            return redirect('map_fields')
+
         font_settings = {}
         for field in headers:
             font = request.POST.get(f"{field}_font")
@@ -227,7 +230,15 @@ def generate_certificates(request):
             print(font,field)
 
             rgb_color = hex_to_rgb(font_info.get('color', '#000000'))
-            draw.text((x, y), value, fill=rgb_color, font=font)
+            text_bbox = draw.textbbox((0, 0), value, font=font)
+            text_width = text_bbox[2] - text_bbox[0]
+            text_height = text_bbox[3] - text_bbox[1]
+
+            centered_x = x - text_width / 2
+            centered_y = y - text_height / 2
+
+            draw.text((centered_x, centered_y), value, fill=rgb_color, font=font)
+
 
 
             safe_name = row.get('Name', f"user_{index+1}").replace(' ', '_')
