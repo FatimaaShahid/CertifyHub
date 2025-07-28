@@ -140,6 +140,8 @@ def choose_font(request):
             return redirect('map_fields')
 
         font_settings = {}
+        updated_coordinates = {}
+
         for field in headers:
             font = request.POST.get(f"{field}_font")
             size = request.POST.get(f"{field}_size")
@@ -158,8 +160,23 @@ def choose_font(request):
                 'italic' : italic
 
             }
+            # Coordinates
+            try:
+                x = float(request.POST.get(f"{field}_x", 0))
+                y = float(request.POST.get(f"{field}_y", 0))
+            except ValueError:
+                x = 0
+                y = 0
+
+            updated_coordinates[field] = {
+                'x': x,
+                'y': y,
+                'width': coordinates.get(field, {}).get('width', 200),
+                'height': coordinates.get(field, {}).get('height', 50),
+            }
 
         request.session['font_settings'] = font_settings
+        request.session['final_coordinates'] = updated_coordinates
         return redirect('generate_certificates')
 
     return render(request, 'generator/choose_font.html', {
@@ -183,7 +200,7 @@ def generate_certificates(request):
     # Retrieve paths and configs
     csv_path = request.session.get('csv_path')
     template_path = request.session.get('template_path')
-    coordinates = request.session.get('field_coordinates', {})
+    coordinates = request.session.get('final_coordinates') or request.session.get('field_coordinates', {})
     font_settings = request.session.get('font_settings', {})
 
     # Safety check
