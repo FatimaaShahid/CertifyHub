@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Certificate Area Selector</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-
   {% load static %}
 
   <style>
@@ -13,14 +12,15 @@
       padding: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       color: white;
-      background-image: url("{% static 'bg_images/image2.png' %}");               
+      background-image: url("{% static 'bg_images/image1.png' %}"); /* changed to image1 */
       background-size: cover;
       background-position: center;
-      background-size: cover;
+      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
+      overflow: hidden;
+      overflow-y: auto;
     }
 
     .container {
@@ -31,6 +31,9 @@
       text-align: center;
       max-width: 900px;
       width: 100%;
+      animation: scrollUpIn 1s ease-out;
+      max-height: none;
+      overflow: visible;
     }
 
     h2 {
@@ -83,10 +86,37 @@
         font-size: 18px;
       }
     }
+
+    /* Scroll animation */
+    @keyframes scrollUpIn {
+      from {
+        transform: translateY(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes scrollUpOut {
+      from {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+    }
+
+    .scroll-up-out {
+      animation: scrollUpOut 0.8s ease-in forwards;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="container" id="mapContainer">
     <h2>Certificate Customization</h2>
 
     <div id="instruction">
@@ -95,7 +125,7 @@
 
     <canvas id="templateCanvas"></canvas>
 
-    <form method="POST">
+    <form method="POST" id="mapForm">
       {% csrf_token %}
       <input type="hidden" name="coordinates" id="coordinatesField">
       <button type="submit" id="submitBtn">Submit Coordinates</button>
@@ -115,6 +145,8 @@
     const currentField = document.getElementById("currentField");
     const coordsField = document.getElementById("coordinatesField");
     const submitBtn = document.getElementById("submitBtn");
+    const form = document.getElementById("mapForm");
+    const container = document.getElementById("mapContainer");
 
     let isDrawing = false, startX = 0, startY = 0;
 
@@ -165,12 +197,12 @@
       const height = Math.abs(pos.y - startY);
 
       coords[fields[currentIndex]] = {
-  x: Math.round(x + width / 2),    // Center X
-  y: Math.round(y + height / 2),   // Center Y
-  width: Math.round(width),
-  height: Math.round(height),
-  default_font_size: Math.round(height)  // Optional: auto font size suggestion
-};
+        x: Math.round(x + width / 2),
+        y: Math.round(y + height / 2),
+        width: Math.round(width),
+        height: Math.round(height),
+        default_font_size: Math.round(height)
+      };
 
       if (currentIndex < fields.length - 1) {
         currentIndex++;
@@ -182,6 +214,14 @@
         coordsField.value = JSON.stringify(coords);
         submitBtn.style.display = "inline-block";
       }
+    });
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      container.classList.add("scroll-up-out");
+      setTimeout(() => {
+        form.submit();
+      }, 800);
     });
   </script>
 </body>

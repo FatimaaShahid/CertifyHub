@@ -13,7 +13,7 @@
     margin: 0;
     padding: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-image: url("{% static 'bg_images/image3.png' %}");
+    background-image: url("{% static 'bg_images/image1.png' %}");
     background-size: cover;
     background-position: center;
     color: #fff;
@@ -190,7 +190,22 @@
     font-weight: 100 900;
     font-style: normal;
   }
+  .page {
+      opacity: 0;
+      transform: translateY(50px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
 
+    .page.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Fade out animation */
+    .page.hide {
+      opacity: 0;
+      transform: translateY(50px);
+    }
       
   </style>
   <!-- Google Fonts -->
@@ -198,7 +213,7 @@
 
 </head>
 <body>
-
+<div class="page">
   <form method="POST" id="fontForm">
     {% csrf_token %}
     <div class="wrapper">
@@ -444,8 +459,29 @@ document.querySelectorAll('.coord-x-input, .coord-y-input').forEach(input => {
     drawPreview();
   });
 });
+ document.addEventListener("DOMContentLoaded", () => {
+    document.querySelector(".page")?.classList.add("show");
+  });
 
+  // Animate slide-down on link click before navigating
+  document.querySelectorAll("a, button").forEach(el => {
+    el.addEventListener("click", e => {
+      const href = el.getAttribute("href");
 
+      // If it's a link and not just a page anchor or JS void
+      if (href && !href.startsWith("#") && !href.startsWith("javascript")) {
+        e.preventDefault();
+        const page = document.querySelector(".page");
+        if (page) {
+          page.classList.remove("show");
+          page.classList.add("hide");
+          setTimeout(() => {
+            window.location.href = href;
+          }, 500); // matches CSS transition
+        }
+      }
+    });
+  });
 </script>
 
 

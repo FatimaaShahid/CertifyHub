@@ -12,13 +12,33 @@
       margin: 0;
       padding: 0;
       font-family: 'Inter', sans-serif;
-      color:white;
-      background-image: url("{% static 'bg_images/image4.png' %}");               
+      color: white;
+      background-image: url("{% static 'bg_images/image1.png' %}");
       background-size: cover;
-      background-position: center;          
-      background-size: cover;
+      background-position: center;
       height: 100vh;
       position: relative;
+      overflow: hidden;
+    }
+
+    /* Animation keyframes */
+    @keyframes slideUpIn {
+      from { transform: translateY(100vh); opacity: 0; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes slideUpOut {
+      from { transform: translateY(0); opacity: 1; }
+      to   { transform: translateY(-100vh); opacity: 0; }
+    }
+
+    .page {
+      animation: slideUpIn 0.6s ease-out forwards;
+      height: 100%;
+    }
+
+    .page.exit {
+      animation: slideUpOut 0.6s ease-in forwards;
     }
 
     .container {
@@ -53,6 +73,7 @@
       border-radius: 8px;
       text-decoration: none;
       transition: background 0.3s ease;
+      display: inline-block;
     }
 
     a.button:hover {
@@ -62,10 +83,24 @@
 </head>
 
 <body>
-  <div class="container">
-    <h2>🎉 Success!</h2>
-    <p>Your certificates have been downloaded successfully.</p>
-    <a href="{% url 'upload_files' %}" class="button">⬅ Back to Home</a>
+  <div class="page" id="page">
+    <div class="container">
+      <h2>🎉 Success!</h2>
+      <p>Your certificates have been downloaded successfully.</p>
+      <a href="{% url 'upload_files' %}" class="button" id="backBtn">⬅ Back to Home</a>
+    </div>
   </div>
+
+  <script>
+    document.getElementById('backBtn').addEventListener('click', function (e) {
+      e.preventDefault();
+      const page = document.getElementById('page');
+      page.classList.add('exit');
+      const target = this.href;
+      setTimeout(() => {
+        window.location.href = target;
+      }, 600); // matches CSS animation duration
+    });
+  </script>
 </body>
 </html>
