@@ -1,25 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Success</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+{% extends "generator/base.html" %} 
+{% load static %}
 
-  {% load static %}
+{% block title %}CertifyHub{% endblock %}
+
+{% block content %}
 
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Inter', sans-serif;
-      color: white;
-      background-image: url("{% static 'bg_images/image1.png' %}");
-      background-size: cover;
-      background-position: center;
-      height: 100vh;
-      position: relative;
-      overflow: hidden;
-    }
+
 
     /* Animation keyframes */
     @keyframes slideUpIn {
@@ -102,5 +89,4 @@
       }, 600); // matches CSS animation duration
     });
   </script>
-</body>
-</html>
+{% endblock %}

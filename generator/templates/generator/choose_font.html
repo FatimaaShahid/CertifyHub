@@ -1,27 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Font Settings with Live Preview</title>
+{% extends "generator/base.html" %} 
+{% load static %}
+
+{% block title %}CertifyHub{% endblock %}
+
+{% block content %}
   {% load dict_extras %}
 
-  {% load static %}
+
 
 <style>
 
-  body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-image: url("{% static 'bg_images/image1.png' %}");
-    background-size: cover;
-    background-position: center;
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-  }
 
   .wrapper {
     background: rgba(0, 0, 0, 0.6); /* Darker overlay */
@@ -485,5 +473,4 @@ document.querySelectorAll('.coord-x-input, .coord-y-input').forEach(input => {
 </script>
 
 
-</body>
-</html>
+{% endblock %}

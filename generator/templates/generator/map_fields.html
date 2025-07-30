@@ -1,25 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Certificate Area Selector</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  {% load static %}
+{% extends "generator/base.html" %} 
+{% load static %}
 
+{% block title %}CertifyHub{% endblock %}
+
+{% block content %}
   <style>
     body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: white;
-      background-image: url("{% static 'bg_images/image1.png' %}"); /* changed to image1 */
       background-size: cover;
       background-position: center;
-      height: 100vh;
-      display: flex;
       justify-content: center;
-      align-items: center;
-      overflow: hidden;
       overflow-y: auto;
     }
 
@@ -224,5 +213,4 @@
       }, 800);
     });
   </script>
-</body>
-</html>
+{% endblock %}

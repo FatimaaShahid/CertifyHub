@@ -1,133 +1,196 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>CertifyHub</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  {% load static %}
+{% extends "generator/base.html" %} 
+{% load static %}
 
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-image: url("{% static 'bg_images/image1.png' %}");
-      background-size: cover;
-      background-position: center;
-      height: 100vh;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
+{% block title %}CertifyHub{% endblock %}
+
+{% block content %}
+<style>
+  .container {
+    text-align: center;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 40px;
+    border-radius: 10px;
+    animation: scrollUpIn 1s ease-out;
+      max-width: 500px;
+  margin: 0 auto;
+
+      /* Light glow shadow */
+  box-shadow: 0 0 15px 5px rgba(173, 216, 230, 0.6);
+  }
+
+  h1 {
+    font-size: 48px;
+    margin-bottom: 30px;
+    letter-spacing: 2px;
+  }
+
+  h1 span {
+    font-size: 56px;
+    font-weight: bold;
+  }
+
+  /* form input[type="file"],
+  form button {
+    display: block;
+    margin: 15px auto;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 30px;
+    background: #666;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s ease;
+  }
+
+  form button:hover,
+  form input[type="file"]:hover {
+    background: #888;
+  } */
+/* Hide native file inputs */
+/* Hide the default file input */
+input[type="file"] {
+  display: none;
+}
+
+.custom-file-upload,
+form button {
+  display: block;
+  width: 100%;
+  width: 300px;
+  margin: 15px auto;
+  padding: 14px 24px;
+
+  border: none;
+  border-radius: 10px;
+
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  color: white;
+  cursor: pointer;
+  user-select: none;
+
+  background: linear-gradient(135deg, #1c1c1c, #2d2d2d);
+  box-shadow: none;
+
+  transition: all 0.3s ease;
+  transform: scale(1);
+}
+
+/* Hover effect: glow + grow */
+.custom-file-upload:hover,
+form button:hover {
+  box-shadow: 0 0 20px rgba(173, 216, 230, 0.9);
+  transform: scale(1.05);
+  background: linear-gradient(135deg, #2d2d2d, #1c1c1c);
+}
+
+/* Active (click) effect: subtle press */
+.custom-file-upload:active,
+form button:active {
+  transform: scale(0.98);
+  box-shadow: 0 0 12px rgba(173, 216, 230, 0.6);
+}
+.glowing {
+  box-shadow: 0 0 20px rgba(173, 216, 230, 0.9) !important;
+  transform: scale(1.05) !important;
+  background: linear-gradient(135deg, #2d2d2d, #1c1c1c) !important;
+}
+
+
+
+
+
+
+
+
+  form label {
+    font-size: 16px;
+    font-weight: 500;
+    color: white;
+    display: block;
+    margin-top: 20px;
+  }
+
+  @keyframes scrollUpIn {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
     }
-
-    .container {
-      text-align: center;
-      background: rgba(0, 0, 0, 0.4);
-      padding: 40px;
-      border-radius: 10px;
-      animation: scrollUpIn 1s ease-out;
+    to {
+      transform: translateY(0);
+      opacity: 1;
     }
+  }
 
-    h1 {
-      font-size: 48px;
-      margin-bottom: 30px;
-      letter-spacing: 2px;
+  @keyframes scrollUpOut {
+    from {
+      transform: translateY(0);
+      opacity: 1;
     }
-
-    h1 span {
-      font-size: 56px;
-      font-weight: bold;
+    to {
+      transform: translateY(-100%);
+      opacity: 0;
     }
+  }
 
-    form input[type="file"],
-    form button {
-      display: block;
-      margin: 15px auto;
-      padding: 12px 20px;
-      border: none;
-      border-radius: 30px;
-      background: #666;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-      transition: 0.3s ease;
-    }
+  .scroll-up-out {
+    animation: scrollUpOut 0.8s ease-in forwards;
+  }
+</style>
 
-    form button:hover,
-    form input[type="file"]:hover {
-      background: #888;
-    }
+<div class="container" id="formContainer">
+  <h1>WELCOME TO<br><span>CERTIFYHUB</span></h1>
 
-    form label {
-      font-size: 16px;
-      font-weight: 500;
-      color: white;
-      display: block;
-      margin-top: 20px;
-    }
+  <!-- <form action="" method="POST" enctype="multipart/form-data" id="uploadForm">
+    {% csrf_token %}
 
-    /* Animation keyframes */
-    @keyframes scrollUpIn {
-      from {
-        transform: translateY(100%);
-        opacity: 0;
-      }
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
-    }
+    <label for="template-file">Upload Certificate Template (PNG, JPG, PDF):</label>
+    <input type="file" id="template-file" name="template_file" accept=".png,.jpg,.jpeg,.pdf" required><br>
 
-    @keyframes scrollUpOut {
-      from {
-        transform: translateY(0);
-        opacity: 1;
-      }
-      to {
-        transform: translateY(-100%);
-        opacity: 0;
-      }
-    }
+    <label for="data-file">Upload Participant Data (CSV or Excel):</label>
+    <input type="file" id="data-file" name="data_file" accept=".csv,.xlsx,.xls" required><br><br>
 
-    .scroll-up-out {
-      animation: scrollUpOut 0.8s ease-in forwards;
-    }
-  </style>
-</head>
-<body>
+    <button type="submit">Submit</button>
+  </form> -->
+  <form action="" method="POST" enctype="multipart/form-data" id="uploadForm">
+  {% csrf_token %}
 
-  <div class="container" id="formContainer">
-    <h1>WELCOME TO<br><span>CERTIFYHUB</span></h1>
+  <label for="template-file" class="custom-file-upload">
+    Upload Certificate Template 
+          
+  </label>
+  
+  <input type="file" id="template-file" name="template_file" accept=".png,.jpg,.jpeg,.pdf" required>
 
-    <form action="" method="POST" enctype="multipart/form-data" id="uploadForm">
-      {% csrf_token %}
+  <label for="data-file" class="custom-file-upload">
+    Upload Data File
+  </label>
+  <input type="file" id="data-file" name="data_file" accept=".csv,.xlsx,.xls" required>
 
-      <label for="template-file">Upload Certificate Template (PNG, JPG, PDF):</label>
-      <input type="file" id="template-file" name="template_file" accept=".png,.jpg,.jpeg,.pdf" required><br>
+  <button type="submit">Submit</button>
+</form>
 
-      <label for="data-file">Upload Participant Data (CSV or Excel):</label>
-      <input type="file" id="data-file" name="data_file" accept=".csv,.xlsx,.xls" required><br><br>
+</div>
 
-      <button type="submit">Submit</button>
-    </form>
-  </div>
+<script>
+  const form = document.getElementById('uploadForm');
+  const container = document.getElementById('formContainer');
 
-  <script>
-    const form = document.getElementById('uploadForm');
-    const container = document.getElementById('formContainer');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault(); // Prevent default submission
+    container.classList.add('scroll-up-out');
+    setTimeout(() => {
+      form.submit(); // Submit after animation
+    }, 800);
+  });
 
-    form.addEventListener('submit', function (e) {
-      e.preventDefault(); // Prevent default submission
+  const button = document.querySelector('.custom-file-upload'); // or 'form button'
 
-      container.classList.add('scroll-up-out');
+button.addEventListener('click', () => {
+  button.classList.add('glowing');
+});
 
-      setTimeout(() => {
-        form.submit(); // Submit after animation
-      }, 800); // Match this to scrollUpOut duration
-    });
-  </script>
-
-</body>
-</html>
+</script>
+{% endblock %}
