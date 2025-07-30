@@ -39,12 +39,92 @@
   }
 
   .form-group {
-    margin-bottom: 30px;
-    border: 1px solid #555;
-    padding: 10px;
-    border-radius: 6px;
-    background: #2a2a2a;
-  }
+  margin-bottom: 30px;
+  border: 1px solid #555;
+  padding: 15px;
+  border-radius: 6px;
+  background: #2a2a2a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.form-group > label:first-child {
+  font-size: 16px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+/* Layout wrappers */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 12px;
+  width: 100%;
+}
+
+.row label {
+  display: flex;
+  flex-direction: column;
+  font-weight: normal;
+  font-size: 14px;
+  color: #ccc;
+}
+
+.row label input,
+.row label select {
+  margin-top: 5px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #666;
+  background: #333;
+  color: #fff;
+  width: 160px;
+}
+.row .checkbox-wrapper {
+  display: flex;
+  flex-direction: row;  /* changed from column to row */
+  justify-content: start;
+  align-items: center;
+  gap: 5px;             /* optional: spacing between checkboxes */
+  margin-top: 5px;
+}
+
+.checkbox-wrapper label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ccc;
+  margin: 0;
+}
+.glow-box {
+  background: #1a1a1a;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  text-align: center;
+  font-weight: bold;
+  box-shadow: 0 0 0 rgba(0, 255, 255, 0); /* Initially no glow */
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.glow-box:hover {
+  transform: translateY(-4px); /* Pop upward */
+  box-shadow: 0 0 20px rgba(173, 216, 230, 0.9);
+  cursor: pointer;
+}
+.glow-container {
+  background: #1a1a1a;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px 5px rgba(173, 216, 230, 0.4); /* Dim glow */
+  margin-bottom: 20px;
+  transition: box-shadow 0.3s ease;
+}
+
 
   label {
     display: block;
@@ -210,61 +290,59 @@
       <div class="form-section">
         <h2>🖊️ Font Settings for Each Field</h2>
         {% for field in fields %}
-          <div class="form-group" data-field="{{ field }}">
-            <label><strong>{{ field }}</strong></label>
+          <div class="form-group glow-container" data-field="{{ field }}">
+              <label><strong>{{ field }}</strong></label>
 
-              <label>Font Style:</label>
-              <select name="{{ field }}_font" class="font-select" data-field="{{ field }}">
-                <option value="Roboto" selected>Roboto</option>
-                <option value="Playfair Display">Playfair Display</option>
-                <option value="Pacifico">Pacifico</option>
-                <option value="Caveat">Caveat</option>
-                <option value="Great Vibes">Great Vibes</option>
-                <option value="Raleway">Raleway</option>
-                <option value="Poppins">Poppins</option>
-                <option value="Dancing Script">Dancing Script</option>
-                <option value="Oswald">Oswald</option>
-              </select>
-              <div style="margin-top:10px;">
-                <label><input type="checkbox" class="bold-toggle" data-field="{{ field }}" name="{{ field }}_bold"> Bold</label>
-                <label><input type="checkbox" class="italic-toggle" data-field="{{ field }}" name="{{ field }}_italic"> Italic</label>
+              <!-- Row 1: Font Style, Size, Color -->
+              <div class="row">
+                <label>Font Style:
+                  <select name="{{ field }}_font" class="font-select" data-field="{{ field }}">
+                    <option value="Roboto" selected>Roboto</option>
+                    <option value="Playfair Display">Playfair Display</option>
+                    <option value="Pacifico">Pacifico</option>
+                    <option value="Caveat">Caveat</option>
+                    <option value="Great Vibes">Great Vibes</option>
+                    <option value="Raleway">Raleway</option>
+                    <option value="Poppins">Poppins</option>
+                    <option value="Dancing Script">Dancing Script</option>
+                    <option value="Oswald">Oswald</option>
+                  </select>
+                </label>
+
+                <label>Font Size:
+                  <input type="number" name="{{ field }}_size" class="size-input" data-field="{{ field }}"
+                    value="{{ coordinates|get_item:field|get_item:'default_font_size'|default:40|floatformat:0 }}"
+                    min="5" max="300">
+                </label>
+
+                <label>Font Color:
+                  <input type="color" name="{{ field }}_color" class="color-input" data-field="{{ field }}"
+                    value="#000000">
+                </label>
               </div>
 
+              <!-- Row 2: X, Y, Bold, Italic -->
+              <div class="row">
+                <label>X Coordinate:
+                  <input type="number" name="{{ field }}_x" class="coord-x-input" data-field="{{ field }}"
+                    value="{{ coordinates|get_item:field|get_item:'x'|default:100 }}" min="0" step="any">
+                </label>
 
+                <label>Y Coordinate:
+                  <input type="number" name="{{ field }}_y" class="coord-y-input" data-field="{{ field }}"
+                    value="{{ coordinates|get_item:field|get_item:'y'|default:100 }}" min="0" step="any">
+                </label>
 
-            <label>Font Size:</label>
-            <input type="number" 
-       name="{{ field }}_size" 
-       class="size-input" 
-       data-field="{{ field }}" 
-       value="{{ coordinates|get_item:field|get_item:'default_font_size'|default:40|floatformat:0 }}" 
-       min="5" max="300">
+                <div class="checkbox-wrapper">
+                  <label><input type="checkbox" class="bold-toggle" data-field="{{ field }}" name="{{ field }}_bold"> Bold</label>
+                  <label><input type="checkbox" class="italic-toggle" data-field="{{ field }}" name="{{ field }}_italic"> Italic</label>
+                </div>
+              </div>
+            </div>
 
-
-            <label>Font Color:</label>
-            <input type="color" name="{{ field }}_color" class="color-input" data-field="{{ field }}" value="#000000">
-<label>X Coordinate:</label>
-<input type="number" 
-       name="{{ field }}_x" 
-       class="coord-x-input" 
-       data-field="{{ field }}" 
-       value="{{ coordinates|get_item:field|get_item:'x'|default:100 }}" 
-       min="0" max="100000000"   step="any"      pattern="\d*"
-       inputmode="numeric">
-
-<label>Y Coordinate:</label>
-<input type="number" 
-       name="{{ field }}_y" 
-       class="coord-y-input" 
-       data-field="{{ field }}" 
-       value="{{ coordinates|get_item:field|get_item:'y'|default:100 }}" 
-       min="0" max="100000000" step="any" pattern="\d*"
-       inputmode="numeric">
-
-          </div>
         {% endfor %}
-        <button type="submit">Finalize and Generate</button>
-        <button type="submit" name="action" value="back">← Back to Map Fields</button>
+        <button class="glow-box" type="submit">Finalize and Generate</button>
+        <button class="glow-box" type="submit" name="action" value="back">← Back to Map Fields</button>
       </div>
 
       <!-- Right Side: Canvas Preview -->
@@ -272,7 +350,6 @@
         <h3>Live Preview</h3>
         <canvas id="templateCanvas"></canvas>
       </div>
-
     </div>
   </form>
 

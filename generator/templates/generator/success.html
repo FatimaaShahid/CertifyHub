@@ -1,12 +1,43 @@
-{% extends "generator/base.html" %} 
-{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Success</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
-{% block title %}CertifyHub{% endblock %}
-
-{% block content %}
+  {% load static %}
 
   <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      color: white;
+      background: linear-gradient(to bottom right, #000000, #4b4b4b);
+      background-size: cover;
+      background-position: center;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+    .glow-box {
+      background: #1a1a1a;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 20px;
+      text-align: center;
+      font-weight: bold;
+      box-shadow: 0 0 0 rgba(0, 255, 255, 0); /* Initially no glow */
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
 
+    .glow-box:hover {
+      transform: translateY(-4px); /* Pop upward */
+      box-shadow: 0 0 20px rgba(173, 216, 230, 0.9);
+      cursor: pointer;
+    }
+    
 
     /* Animation keyframes */
     @keyframes slideUpIn {
@@ -35,7 +66,7 @@
       background: rgba(0, 0, 0, 0.4);
       padding: 30px 50px;
       border-radius: 20px;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      box-shadow:  0 0 15px 5px rgba(173, 216, 230, 0.4); /* Dim glow */
       text-align: left;
     }
 
@@ -74,7 +105,7 @@
     <div class="container">
       <h2>🎉 Success!</h2>
       <p>Your certificates have been downloaded successfully.</p>
-      <a href="{% url 'upload_files' %}" class="button" id="backBtn">⬅ Back to Home</a>
+      <a href="{% url 'upload_files' %}" class="button glow-box" id="backBtn">⬅ Back to Home</a>
     </div>
   </div>
 
@@ -89,4 +120,5 @@
       }, 600); // matches CSS animation duration
     });
   </script>
-{% endblock %}
+</body>
+</html>
