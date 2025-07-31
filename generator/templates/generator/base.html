@@ -16,11 +16,21 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        overflow: hidden;
+            flex-direction: column; /* NEW: Stack elements vertically */
+    overflow-y: auto;  
+    padding-top: 100px; 
       }
     </style>
 </head>
 <body>
+<header style="position: fixed; top: 0; left: 0; width: 100%; height: 80px; z-index: 1000;">
+  <nav style="display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; background: linear-gradient(to bottom right, #000000, #4b4b4b); border-bottom: 2px solid white;">
+    <img src="{% static 'logo/capture2.png' %}" alt="CertifyHub Logo" style="height: 65px;">
+    <ul style="display: flex; gap: 1.5rem; list-style: none; margin: 0;"></ul>
+  </nav>
+</header>
+
+
 
   {% block content %}
   <!-- Content from child templates will appear here -->
