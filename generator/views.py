@@ -44,11 +44,9 @@ def map_fields(request):
             # Calculate center points
             centered_data = {}
             for field, coords in original_data.items():
-                x_center = coords['x'] + coords['width'] / 2
-                y_center = coords['y'] + coords['height'] / 2
                 centered_data[field] = {
-                    'x': x_center,
-                    'y': y_center,
+                    'x': coords['x'],
+                    'y': coords['y'] ,
                     'width': coords['width'],
                     'height': coords['height'],
                     'default_font_size': coords['height']  # New
@@ -213,10 +211,8 @@ def generate_certificates(request):
     with open(csv_full_path, newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            if 's.no' in row:
-                del row['s.no']
-            elif 'S.No' in row:
-                del row['S.No']
+            row.pop('s.no', None)
+            row.pop('S.No', None)
             csv_data.append(row)
 
     # Ensure output directory
@@ -227,6 +223,7 @@ def generate_certificates(request):
     for index, row in enumerate(csv_data):
         img = Image.open(os.path.join(settings.MEDIA_ROOT, template_path)).convert("RGB")
         draw = ImageDraw.Draw(img)
+
         for field, value in row.items():
             field_coords = coordinates.get(field, {})
             x = int(field_coords.get('x', 0))
@@ -264,23 +261,32 @@ def generate_certificates(request):
                     break
                 current_size -= 1
 
-            # Final bottom-left coordinates (mimic JS logic)
-            text_x = x - width
-            text_y = y   # bottom edge
+            # Align text center at (x, y)
+            text_x = x - text_width / 2
+            text_y = y - text_height / 2
 
-            draw.text((text_x, text_y), value, fill=rgb_color, font=font, anchor="ls")
-        
-            print(font_info['size'],field)
+            draw.text((text_x, text_y), value, fill=rgb_color, font=font)
 
+            print(font_info['size'], field)
 
-
-
-            safe_name = row.get('Name', f"user_{index+1}").replace(' ', '_')
-            output_path = f"output/certificate_{index+1}_{safe_name}.pdf"
-            img.save(output_path, "PDF")
+        safe_name = row.get('Name', f"user_{index+1}").replace(' ', '_')
+        output_path = f"output/certificate_{index+1}_{safe_name}.pdf"
+        img.save(output_path, "PDF")
 
     return render(request, 'generator/success.html')
 
+from zipfile import ZipFile
+from django.http import FileResponse
+import io
 
+def download_certificates(request):
+    output_folder = 'output'  # Path where certificates are saved
+    zip_io = io.BytesIO()  # In-memory zip file
 
+    with ZipFile(zip_io, 'w') as zip_file:
+        for filename in os.listdir(output_folder):
+            file_path = os.path.join(output_folder, filename)
+            zip_file.write(file_path, arcname=filename)
 
+    zip_io.seek(0)
+    return FileResponse(zip_io, as_attachment=True, filename='certificates.zip')

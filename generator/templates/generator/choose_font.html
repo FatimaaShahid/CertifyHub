@@ -434,9 +434,17 @@ function drawPreview() {
     const { font, size, color, bold, italic } = fontSettings[field];
     ctx.font = `${italic ? 'italic ' : ''}${bold ? 'bold ' : ''}${size}px '${font}'`;
     ctx.fillStyle = color;
-    ctx.fillText(field, coord.x-coord.width, coord.y );
-    
 
+    // Measure text size
+    const textMetrics = ctx.measureText(field);
+    const textWidth = textMetrics.width;
+    const textHeight = size; // approx height, since measureText doesn't give it directly
+
+    // Adjust coordinates so text is centered at coord.x, coord.y
+    const drawX = coord.x - textWidth / 2;
+    const drawY = coord.y + textHeight / 2;
+
+    ctx.fillText(field, drawX, drawY);
   });
 }
 
