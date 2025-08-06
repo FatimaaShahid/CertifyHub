@@ -1,40 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}CertifyHub{% endblock %}</title>
-    {% load static %}
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(to bottom right, #000000, #4b4b4b);
-        height: 100vh;
-        color: white;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-            flex-direction: column; /* NEW: Stack elements vertically */
-    overflow-y: auto;  
-    padding-top: 100px; 
-      }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}CertifyHub{% endblock %}</title>
+  {% load static %}
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom right, #000000, #4b4b4b);
+      min-height: 100vh;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      overflow-x: hidden;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding-top: 70px;
+      padding-bottom: 0px;
+    }
+
+
+  </style>
 </head>
 <body>
-<header style="position: fixed; top: 0; left: 0; width: 100%; height: 80px; z-index: 1000;">
-  <nav style="display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; background: linear-gradient(to bottom right, #000000, #4b4b4b); border-bottom: 2px solid white;">
-    <img src="{% static 'logo/capture2.png' %}" alt="CertifyHub Logo" style="height: 65px;">
-    <ul style="display: flex; gap: 1.5rem; list-style: none; margin: 0;"></ul>
-  </nav>
-</header>
+
+  <!-- HEADER -->
+  <header style="position: fixed; top: 0; left: 0; width: 100%; height: 60px; z-index: 1000;">
+    <nav style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 2rem; background: linear-gradient(to bottom right, #000000, #4b4b4b); border-bottom: 2px solid white;">
+      <img src="{% static 'logo/capture2.png' %}" alt="CertifyHub Logo" style="height: 45px;">
+      <ul style="display: flex; gap: 1.5rem; list-style: none; margin: 0;"></ul>
+    </nav>
+  </header>
+
+  <!-- MAIN CONTENT AREA -->
+  <main>
+    {% block content %}
+    <!-- Page-specific content goes here -->
+    {% endblock %}
+  </main>
+
+  <!-- FOOTER -->
+<style>
+
+  .creators {
+    display: flex;
+    justify-content: space-around;
+    gap: 40px;
+    margin-top: 40px;
+    flex-wrap: wrap;
+    text-align: left;
+  }
+  .creator-info {
+    flex: 1;
+    min-width: 250px;
+  }
+  .creator-info h3 {
+    color: #add8e6;
+  }
+  .icon {
+    vertical-align: middle;
+    margin-right: 6px;
+    fill: #add8e6;
+  }
+</style>
+
+<footer style="width: 100%; color: white; padding: 25px 0; text-align: center; border-top: 2px solid #fbfbfb; background: linear-gradient(to bottom right, #000000, #393939);">
+  
+  <!-- Two Columns Wrapper -->
+  <div style="display: flex; justify-content: center; gap: 80px; flex-wrap: wrap; max-width: 1000px; margin: auto;">
+
+    <!-- Asra Siddique Column -->
+    <div style="flex: 1; min-width: 250px; text-align: center;">
+      <h3 style="color: #add8e6; margin-bottom: 12px;">Asra Siddique</h3>
+      <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+        <a href="mailto:asra@example.com" target="_blank" style="background: white; border-radius: 50%; padding: 10px; display: flex;">
+          <img src="https://img.icons8.com/fluency/24/gmail.png" alt="Gmail" />
+        </a>
+        <a href="https://www.linkedin.com/in/asra-siddique" target="_blank" style="background: white; border-radius: 50%; padding: 10px; display: flex;">
+          <img src="https://img.icons8.com/color/24/linkedin.png" alt="LinkedIn" />
+        </a>
+        <a href="https://github.com/asrasiddique" target="_blank" style="background: white; border-radius: 50%; padding: 10px; display: flex;">
+          <img src="https://img.icons8.com/ios-filled/24/000000/github.png" alt="GitHub" />
+        </a>
+      </div>
+    </div>
+
+    <!-- Fatima Shahid Column -->
+    <div style="flex: 1; min-width: 250px; text-align: center;">
+      <h3 style="color: #add8e6; margin-bottom: 12px;">Fatima Shahid</h3>
+      <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+        <a href="mailto:fatimashahid781@gmail.com" target="_blank" style="background: white; border-radius: 50%; padding: 10px; display: flex;">
+          <img src="https://img.icons8.com/fluency/24/gmail.png" alt="Gmail" />
+        </a>
+        <a href="https://www.linkedin.com/in/fatima-shahid-computer-system-engineering-undergraduate-ned27" target="_blank" style="background: white; border-radius: 50%; padding: 10px; display: flex;">
+          <img src="https://img.icons8.com/color/24/linkedin.png" alt="LinkedIn" />
+        </a>
+        <a href="https://medium.com/@fatimashahid781" target="_blank" style="background: white; border-radius: 50%; padding: 10px; display: flex;">
+          <img src="https://img.icons8.com/ios-filled/24/000000/medium-new.png" alt="Medium" />
+        </a>
+        <a href="https://github.com/FatimaaShahid" target="_blank" style="background: white; border-radius: 50%; padding: 10px; display: flex;">
+          <img src="https://img.icons8.com/ios-filled/24/000000/github.png" alt="GitHub" />
+        </a>
+        <a href="https://leetcode.com/u/FatimaaShahid/" target="_blank" style="background: white; border-radius: 50%; padding: 10px; display: flex;">
+          <img src="https://img.icons8.com/external-tal-revivo-color-tal-revivo/24/external-level-up-your-coding-skills-and-quickly-land-a-job-logo-color-tal-revivo.png" alt="LeetCode" />
+        </a>
+        <a href="https://www.instagram.com/fatimas_abstract" target="_blank" style="background: white; border-radius: 50%; padding: 10px; display: flex;">
+          <img src="https://img.icons8.com/fluency/24/instagram-new.png" alt="Instagram" />
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer Bottom -->
+  <p style="margin-top: 40px; font-size: 14px; color: #aaa;">&copy; 2025 CertifyHub. All rights reserved.</p>
+</footer>
 
 
 
-  {% block content %}
-  <!-- Content from child templates will appear here -->
-  {% endblock %}
+
 
 </body>
 </html>
