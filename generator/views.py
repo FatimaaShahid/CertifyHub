@@ -193,6 +193,13 @@ def hex_to_rgb(value):
     lv = len(value)
     return tuple(int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
 
+import glob
+
+def clear_output_folder():
+    files = glob.glob('output/*')
+    for f in files:
+        os.remove(f)
+
 
 def generate_certificates(request):
     # Retrieve paths and configs
@@ -200,6 +207,8 @@ def generate_certificates(request):
     template_path = request.session.get('template_path')
     coordinates = request.session.get('final_coordinates') or request.session.get('field_coordinates', {})
     font_settings = request.session.get('font_settings', {})
+
+    clear_output_folder()
 
     # Safety check
     if not all([csv_path, template_path, coordinates, font_settings]):
