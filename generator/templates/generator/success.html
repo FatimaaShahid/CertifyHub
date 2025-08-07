@@ -11,12 +11,12 @@
     body {
       margin: 0;
       padding: 0;
+      height: 100%%;
       font-family: 'Inter', sans-serif;
       color: white;
       background: linear-gradient(to bottom right, #000000, #4b4b4b);
       background-size: cover;
       background-position: center;
-      height: 100vh;
       position: relative;
       overflow: hidden;
     }
@@ -50,25 +50,32 @@
       to   { transform: translateY(-100vh); opacity: 0; }
     }
 
-    .page {
-      animation: slideUpIn 0.6s ease-out forwards;
-      height: 100%;
+    .wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
+    .page {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      animation: slideUpIn 0.6s ease-out forwards;
+    }
     .page.exit {
       animation: slideUpOut 0.6s ease-in forwards;
     }
 
-    .container {
-      position: absolute;
-      bottom: 40px;
-      left: 40px;
-      background: rgba(0, 0, 0, 0.4);
-      padding: 30px 50px;
-      border-radius: 20px;
-      box-shadow:  0 0 15px 5px rgba(173, 216, 230, 0.4); /* Dim glow */
-      text-align: left;
-    }
+  .container {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 30px 50px;
+  border-radius: 20px;
+  box-shadow: 0 0 15px 5px rgba(173, 216, 230, 0.4);
+  text-align: center;
+}
+
+
 
     h2 {
       font-size: 32px;
@@ -101,26 +108,93 @@
 </head>
 
 <body>
+  <div class="wrapper">
   <div class="page" id="page">
     <div class="container">
       <h2>🎉 Success!</h2>
-      <p>Your certificates have been downloaded successfully.</p>
+      <p>Turning effort into evidence — your certificates are ready.</p>
       <a href="{% url 'upload_files' %}" class="button glow-box" id="backBtn">⬅ Back to Home</a>
-      <a href="{% url 'download_certificates' %}" class="button glow-box" id="backBtn">Download Certificates ZIP</a>
+      <a href="{% url 'download_certificates' %}" class="button glow-box" id="downloadZipBtn">Download Certificates ZIP</a>
       </a>
     </div>
   </div>
+<footer style="width: 100%; color: white; padding: 25px 0; text-align: center; border-top: 2px solid #fbfbfb; background: linear-gradient(to bottom right, #000000, #393939);">
+  
+  <!-- Two Columns Wrapper -->
+  <div style="display: flex; justify-content: center; gap: 80px; flex-wrap: wrap; max-width: 1000px; margin: auto;">
+
+    <!-- Asra Siddiqui Column -->
+    <div style="flex: 1; min-width: 250px; text-align: center;">
+      <h3 style="color: #add8e6; margin-bottom: 12px;">Asra Siddiqui</h3>
+      <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+        <a href="mailto:asrasiddiqi01@gmail.com.com" target="_blank" style="background: white; border-radius: 50%; padding: 10px; display: flex;">
+          <img src="https://img.icons8.com/fluency/24/gmail.png" alt="Gmail" />
+        </a>
+        <a href="https://www.linkedin.com/in/asra-siddiqui-4407182b6/" target="_blank" style="background: white; border-radius: 50%; padding: 10px; display: flex;">
+          <img src="https://img.icons8.com/color/24/linkedin.png" alt="LinkedIn" />
+        </a>
+        <a href="https://github.com/aasrasiddiqui" target="_blank" style="background: white; border-radius: 50%; padding: 10px; display: flex;">
+          <img src="https://img.icons8.com/ios-filled/24/000000/github.png" alt="GitHub" />
+        </a>
+        <a href="https://leetcode.com/u/asrasiddiqui/" target="_blank" style="background: white; border-radius: 50%; padding: 10px; display: flex;">
+          <img src="https://img.icons8.com/external-tal-revivo-color-tal-revivo/24/external-level-up-your-coding-skills-and-quickly-land-a-job-logo-color-tal-revivo.png" alt="LeetCode" />
+        </a>
+        <a href="https://www.instagram.com/asratist/" target="_blank" style="background: white; border-radius: 50%; padding: 10px; display: flex;">
+          <img src="https://img.icons8.com/fluency/24/instagram-new.png" alt="Instagram" />
+        </a>
+      </div>
+    </div>
+
+    <!-- Fatima Shahid Column -->
+    <div style="flex: 1; min-width: 250px; text-align: center;">
+      <h3 style="color: #add8e6; margin-bottom: 12px;">Fatima Shahid</h3>
+      <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+        <a href="mailto:fatimashahid781@gmail.com" target="_blank" style="background: white; border-radius: 50%; padding: 10px; display: flex;">
+          <img src="https://img.icons8.com/fluency/24/gmail.png" alt="Gmail" />
+        </a>
+        <a href="https://www.linkedin.com/in/fatima-shahid-computer-system-engineering-undergraduate-ned27" target="_blank" style="background: white; border-radius: 50%; padding: 10px; display: flex;">
+          <img src="https://img.icons8.com/color/24/linkedin.png" alt="LinkedIn" />
+        </a>
+        <a href="https://medium.com/@fatimashahid781" target="_blank" style="background: white; border-radius: 50%; padding: 10px; display: flex;">
+          <img src="https://img.icons8.com/ios-filled/24/000000/medium-new.png" alt="Medium" />
+        </a>
+        <a href="https://github.com/FatimaaShahid" target="_blank" style="background: white; border-radius: 50%; padding: 10px; display: flex;">
+          <img src="https://img.icons8.com/ios-filled/24/000000/github.png" alt="GitHub" />
+        </a>
+        <a href="https://leetcode.com/u/FatimaaShahid/" target="_blank" style="background: white; border-radius: 50%; padding: 10px; display: flex;">
+          <img src="https://img.icons8.com/external-tal-revivo-color-tal-revivo/24/external-level-up-your-coding-skills-and-quickly-land-a-job-logo-color-tal-revivo.png" alt="LeetCode" />
+        </a>
+        <a href="https://www.instagram.com/fatimas_abstract" target="_blank" style="background: white; border-radius: 50%; padding: 10px; display: flex;">
+          <img src="https://img.icons8.com/fluency/24/instagram-new.png" alt="Instagram" />
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer Bottom -->
+  <p style="margin-top: 40px; font-size: 14px; color: #aaa;">&copy; 2025 CertifyHub. All rights reserved.</p>
+</footer>
+</div>
+</body>
 
   <script>
-    document.getElementById('backBtn').addEventListener('click', function (e) {
-      e.preventDefault();
-      const page = document.getElementById('page');
-      page.classList.add('exit');
-      const target = this.href;
-      setTimeout(() => {
-        window.location.href = target;
-      }, 600); // matches CSS animation duration
-    });
-  </script>
-</body>
+  const animateAndRedirect = (buttonId) => {
+    const btn = document.getElementById(buttonId);
+    if (btn) {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        const page = document.getElementById('page');
+        page.classList.add('exit');
+        const target = this.href;
+        setTimeout(() => {
+          window.location.href = target;
+        }, 600); // matches CSS animation duration
+      });
+    }
+  };
+
+  animateAndRedirect('backHomeBtn');
+  animateAndRedirect('downloadZipBtn');
+</script>
 </html>
