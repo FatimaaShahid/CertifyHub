@@ -214,8 +214,8 @@
       const height = Math.abs(pos.y - startY);
 
       coords[fields[currentIndex]] = {
-        x: Math.round(x + width / 2),
-        y: Math.round(y + height / 2),
+        x: x,
+        y: y,
         width: Math.round(width),
         height: Math.round(height),
         default_font_size: Math.round(height)

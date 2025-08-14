@@ -438,13 +438,19 @@ function drawPreview() {
     // Measure text size
     const textMetrics = ctx.measureText(field);
     const textWidth = textMetrics.width;
-    const textHeight = size; // approx height, since measureText doesn't give it directly
+    const textHeight = size; // approx height
 
-    // Adjust coordinates so text is centered at coord.x, coord.y
-    const drawX = coord.x - textWidth / 2;
-    const drawY = coord.y + textHeight / 2;
+    // Adjust coordinates so text is centered
+    const x_offset = Math.max((coord.width-textWidth)/2,0)
+    const drawY = coord.y + textHeight ;
 
-    ctx.fillText(field, drawX, drawY);
+    ctx.fillText(field,(coord.x+x_offset), drawY);
+
+    // 🔹 Draw red box around the placement
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(coord.x, coord.y, coord.width, coord.height);
+    ctx.strokeRect(coord.x+x_offset, coord.y, textWidth, textHeight);
   });
 }
 

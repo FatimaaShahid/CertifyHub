@@ -114,7 +114,6 @@
       <h2>🎉 Success!</h2>
       <p>Turning effort into evidence — your certificates are ready.</p>
       <a href="{% url 'upload_files' %}" class="button glow-box" id="backBtn">⬅ Back to Home</a>
-      <a href="{% url 'download_certificates' %}" class="button glow-box" id="downloadZipBtn">Download Certificates ZIP</a>
       </a>
     </div>
   </div>
@@ -195,5 +194,6 @@
   };
 
   animateAndRedirect('backHomeBtn');
+  animateAndRedirect('downloadZipBtn');
 </script>
 </html>

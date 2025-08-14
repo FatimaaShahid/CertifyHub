@@ -23,6 +23,18 @@ def upload_files(request):
             if headers[0].lower() in ['s.no', 'sno']:
                 headers = headers[1:]
 
+        # Initialize dict with empty strings for each header
+            longest_strings = {header: 0 for header in headers}
+
+            for row in reader:
+                # Skip serial number if present
+                if len(row) > len(headers):
+                    row = row[1:]
+                for header, cell in zip(headers, row):
+                    if len(cell) > longest_strings[header]:
+                        longest_strings[header] = len(cell)
+
+        request.session['longest_strings'] = longest_strings
         request.session['csv_path'] = csv_path
         request.session['template_path'] = template_path
         request.session['headers'] = headers
@@ -129,6 +141,29 @@ def choose_font(request):
     template_url = default_storage.url(template_path)
     coordinates = request.session.get('field_coordinates', {})
     headers = request.session.get('headers', [])
+    longest_strings = request.session.get('longest_strings', {})
+
+    padded_headers = []
+    for header in headers:
+        header_len = len(header)
+        longest_len = longest_strings.get(header, header_len)
+
+        diff = longest_len - header_len
+        if diff > 0:  # Only pad if longest is longer
+            if diff % 2 == 0:
+                left = right = diff // 2
+            else:
+                left = diff // 2
+                right = left + 1
+            padded_header = '-' * left + header + '-' * right
+        else:
+            padded_header = header
+
+        padded_headers.append(padded_header)
+    print(padded_headers)
+    print(headers)
+    request.session['padded_headers'] = padded_headers
+
 
     if not headers or not coordinates:
         return redirect('upload_files')
@@ -178,7 +213,7 @@ def choose_font(request):
         return redirect('generate_certificates')
 
     return render(request, 'generator/choose_font.html', {
-        'fields': headers,
+        'fields': padded_headers,
         'template_url': template_url,
         'coordinates': coordinates
     })
@@ -272,9 +307,15 @@ def generate_certificates(request):
 
             # Align text center at (x, y)
             text_x = x - text_width / 2
-            text_y = y - text_height / 2
+            text_y = y + text_height /2
 
             draw.text((text_x, text_y), value, fill=rgb_color, font=font)
+
+            rect_x0 = x - width / 2
+            rect_y0 = y - height / 2
+            rect_x1 = x + width / 2
+            rect_y1 = y + height / 2
+            draw.rectangle([rect_x0, rect_y0, rect_x1, rect_y1], outline="red", width=2)
 
             print(font_info['size'], field)
 
