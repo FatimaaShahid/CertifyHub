@@ -289,7 +289,7 @@
       <!-- Left Side: Dynamic Font Controls -->
       <div class="form-section">
         <h2>🖊️ Font Settings for Each Field</h2>
-        {% for field in fields %}
+        {% for field, display in fields_combined %}
           <div class="form-group glow-container" data-field="{{ field }}">
               <label><strong>{{ field }}</strong></label>
 

@@ -39,6 +39,7 @@ def upload_files(request):
         request.session['template_path'] = template_path
         request.session['headers'] = headers
 
+
         return redirect('map_fields')  # This should match the name in your urls.py
 
     return render(request, 'generator/index.html')
@@ -51,6 +52,8 @@ from django.core.files.storage import default_storage
 def map_fields(request):
     if request.method == 'POST':
         field_data = request.POST.get('coordinates')
+        print("---------------------------------------------")
+        print(f"field data : {field_data}")
         if field_data:
             original_data = json.loads(field_data)
             # Calculate center points
@@ -142,6 +145,12 @@ def choose_font(request):
     coordinates = request.session.get('field_coordinates', {})
     headers = request.session.get('headers', [])
     longest_strings = request.session.get('longest_strings', {})
+    print("-----------------------------------------------------------------------")
+    print(f"headers : {headers}")
+    print("-----------------------------------------------------------------------")
+    print(f"longest_strings : {longest_strings}")
+    print("-----------------------------------------------------------------------")
+    print(f"coordinates : {coordinates }")
 
     padded_headers = []
     for header in headers:
@@ -160,9 +169,11 @@ def choose_font(request):
             padded_header = header
 
         padded_headers.append(padded_header)
-    print(padded_headers)
-    print(headers)
+    print("-----------------------------------------------------------------------")
+    print("padded headers:" ,padded_headers)
+
     request.session['padded_headers'] = padded_headers
+    fields_combined = list(zip(headers, padded_headers))
 
 
     if not headers or not coordinates:
@@ -213,8 +224,10 @@ def choose_font(request):
         return redirect('generate_certificates')
 
     return render(request, 'generator/choose_font.html', {
-        'fields': padded_headers,
+        'fields': headers,
+        'display_fields': padded_headers,
         'template_url': template_url,
+        'fields_combined': fields_combined,
         'coordinates': coordinates
     })
 
