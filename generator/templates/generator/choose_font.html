@@ -312,7 +312,7 @@
                 <label>Font Size:
                   <input type="number" name="{{ field }}_size" class="size-input" data-field="{{ field }}"
                     value="{{ coordinates|get_item:field|get_item:'default_font_size'|default:40|floatformat:0 }}"
-                    min="5" max="300">
+                    min="5" max="{{ coordinates|get_item:field|get_item:'max_font_size'|default:40|floatformat:0 }}">
                 </label>
 
                 <label>Font Color:
@@ -454,11 +454,12 @@ function drawPreview() {
     // Adjust coordinates so text is centered
     const x_offset = Math.max((coord.width-textWidth)/2,0)
     const drawY = coord.y + textHeight ;
+    const y_offset = Math.max((coord.height - textHeight),0)
     
     if (mapping) {
-        ctx.fillText(mapping.display,(coord.x+x_offset), drawY); // show padded header
+        ctx.fillText(mapping.display,(coord.x+x_offset), drawY+y_offset); // show padded header
     } else {
-        ctx.fillText(currentFieldKey,(coord.x+x_offset), drawY); // fallback
+        ctx.fillText(currentFieldKey,(coord.x+x_offset), drawY+y_offset); // fallback
     }
 
     // ctx.fillText(field,(coord.x+x_offset), drawY);

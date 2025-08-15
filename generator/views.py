@@ -174,6 +174,49 @@ def choose_font(request):
 
     request.session['padded_headers'] = padded_headers
     fields_combined = list(zip(headers, padded_headers))
+    # New: Dynamic default font size calculation & max_font_size
+    # ================================
+    font_info = {
+        'font': 'Roboto',
+        'size': 40,
+        'color': '#000000',
+        'bold': False,
+        'italic': False
+    }
+    font_path = get_font_path(font_info['font'], font_info.get('bold'), font_info.get('italic'))
+    for field, padded_text in zip(headers, padded_headers):
+        if field in coordinates:
+            width = coordinates[field].get('width', 200)
+            height = coordinates[field].get('height', 50)
+
+            img = Image.new("RGB", (width, height))
+            draw = ImageDraw.Draw(img)
+
+            # === Calculate max possible font size ===
+            max_size_try = 500  # Large starting point
+            while max_size_try >= 5:
+                try:
+                    font = ImageFont.truetype(font_path, max_size_try)
+                except Exception:
+                    font = ImageFont.load_default()
+
+                text_bbox = draw.textbbox((0, 0), padded_text, font=font)
+                text_width = text_bbox[2] - text_bbox[0]
+                text_height = text_bbox[3] - text_bbox[1]
+
+                if text_width <= width and text_height <= height:
+                    break
+                max_size_try -= 1
+
+            max_font_size = max_size_try
+
+            # === Default font size can be set as 70% of max ===
+            default_font_size = int(max_font_size * 0.7)
+
+            coordinates[field]['max_font_size'] = max_font_size
+            coordinates[field]['default_font_size'] = default_font_size
+
+            print(f"'{field}' => Max: {max_font_size}, Default: {default_font_size}")
 
 
     if not headers or not coordinates:
@@ -217,6 +260,8 @@ def choose_font(request):
                 'y': y,
                 'width': coordinates.get(field, {}).get('width', 200),
                 'height': coordinates.get(field, {}).get('height', 50),
+                'default_font_size': coordinates.get(field, {}).get('default_font_size', 40),
+                'max_font_size': coordinates.get(field, {}).get('max_font_size', 40)
             }
 
         request.session['font_settings'] = font_settings
