@@ -355,8 +355,14 @@
 
 <script>
 const fields = {{ fields|safe }};
+const displayFields = {{ display_fields|safe }};
 const coordinates = {{ coordinates|safe }};
 const templateUrl = "{{ template_url }}";
+const fieldMappings = fields.map((key, idx) => ({
+    key: key,
+    display: displayFields[idx]
+}));
+console.log(fieldMappings);
 
 const canvas = document.getElementById('templateCanvas');
 const ctx = canvas.getContext('2d');
@@ -436,15 +442,26 @@ function drawPreview() {
     ctx.fillStyle = color;
 
     // Measure text size
-    const textMetrics = ctx.measureText(field);
+    // const textMetrics = ctx.measureText(field);
+    const mapping = fieldMappings.find(f => f.key === field);
+    const displayValue = mapping ? mapping.display : field;
+
+    const textMetrics = ctx.measureText(displayValue);
+
     const textWidth = textMetrics.width;
     const textHeight = size; // approx height
 
     // Adjust coordinates so text is centered
     const x_offset = Math.max((coord.width-textWidth)/2,0)
     const drawY = coord.y + textHeight ;
+    
+    if (mapping) {
+        ctx.fillText(mapping.display,(coord.x+x_offset), drawY); // show padded header
+    } else {
+        ctx.fillText(currentFieldKey,(coord.x+x_offset), drawY); // fallback
+    }
 
-    ctx.fillText(field,(coord.x+x_offset), drawY);
+    // ctx.fillText(field,(coord.x+x_offset), drawY);
 
     // 🔹 Draw red box around the placement
     ctx.strokeStyle = "red";
