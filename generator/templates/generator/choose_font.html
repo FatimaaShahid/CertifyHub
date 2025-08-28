@@ -312,7 +312,7 @@
                 <label>Font Size:
                   <input type="number" name="{{ field }}_size" class="size-input" data-field="{{ field }}"
                     value="{{ coordinates|get_item:field|get_item:'default_font_size'|default:40|floatformat:0 }}"
-                    min="5" max="{{ coordinates|get_item:field|get_item:'max_font_size'|default:40|floatformat:0 }}">
+                    min="5" >
                 </label>
 
                 <label>Font Color:
@@ -336,6 +336,12 @@
                 <div class="checkbox-wrapper">
                   <label><input type="checkbox" class="bold-toggle" data-field="{{ field }}" name="{{ field }}_bold"> Bold</label>
                   <label><input type="checkbox" class="italic-toggle" data-field="{{ field }}" name="{{ field }}_italic"> Italic</label>
+                </div>
+                <div>
+                  <input type="hidden" name="{{ field }}_adj_x" class="adj-x" data-field="{{ field }}">
+                  <input type="hidden" name="{{ field }}_adj_y" class="adj-y" data-field="{{ field }}">
+                  <input type="hidden" name="{{ field }}_text_width" class="adj-width" data-field="{{ field }}">
+                  <input type="hidden" name="{{ field }}_text_height" class="adj-height" data-field="{{ field }}">
                 </div>
               </div>
             </div>
@@ -457,7 +463,7 @@ function drawPreview() {
     const y_offset = Math.max((coord.height - textHeight),0)
     
     if (mapping) {
-        ctx.fillText(mapping.display,(coord.x+x_offset), drawY+y_offset); // show padded header
+        ctx.fillText(mapping.display,(coord.x+x_offset), drawY+y_offset); // show padded header (x=topleft,y=bottomleft)
     } else {
         ctx.fillText(currentFieldKey,(coord.x+x_offset), drawY+y_offset); // fallback
     }
@@ -468,7 +474,7 @@ function drawPreview() {
     ctx.strokeStyle = "red";
     ctx.lineWidth = 2;
     ctx.strokeRect(coord.x, coord.y, coord.width, coord.height);
-    ctx.strokeRect(coord.x+x_offset, coord.y, textWidth, textHeight);
+    ctx.strokeRect(coord.x+x_offset, coord.y+y_offset, textWidth, textHeight);
   });
 }
 
@@ -579,6 +585,38 @@ document.querySelectorAll('.coord-x-input, .coord-y-input').forEach(input => {
       }
     });
   });
+  
+  const form = document.getElementById("fontForm");
+
+form.addEventListener("submit", function() {
+  fields.forEach(field => {
+    const coord = coordinates[field];
+    if (!coord) return;
+
+    const { font, size, color, bold, italic } = fontSettings[field];
+    ctx.font = `${italic ? 'italic ' : ''}${bold ? 'bold ' : ''}${size}px '${font}'`;
+
+    const mapping = fieldMappings.find(f => f.key === field);
+    const displayValue = mapping ? mapping.display : field;
+    const textMetrics = ctx.measureText(displayValue);
+
+    const textWidth = textMetrics.width;
+    const textHeight = size;
+
+    const x_offset = Math.max((coord.width - textWidth) / 2, 0);
+    const y_offset = Math.max((coord.height - textHeight), 0);
+
+    const finalX = coord.x + x_offset;
+    const finalY = coord.y + y_offset;
+
+    // 🔹 Save to hidden inputs
+    document.querySelector(`input.adj-x[data-field="${field}"]`).value = finalX;
+    document.querySelector(`input.adj-y[data-field="${field}"]`).value = finalY;
+    document.querySelector(`input.adj-width[data-field="${field}"]`).value = textWidth;
+    document.querySelector(`input.adj-height[data-field="${field}"]`).value = textHeight;
+  });
+});
+
 </script>
 
 

@@ -248,21 +248,19 @@ def choose_font(request):
 
             }
             # Coordinates
-            try:
-                x = float(request.POST.get(f"{field}_x", 0))
-                y = float(request.POST.get(f"{field}_y", 0))
-            except ValueError:
-                x = 0
-                y = 0
+            adj_x = request.POST.get(f"{field}_adj_x")
+            adj_y = request.POST.get(f"{field}_adj_y")
+            text_w = request.POST.get(f"{field}_text_width")
+            text_h = request.POST.get(f"{field}_text_height")
 
             updated_coordinates[field] = {
-                'x': x,
-                'y': y,
-                'width': coordinates.get(field, {}).get('width', 200),
-                'height': coordinates.get(field, {}).get('height', 50),
-                'default_font_size': coordinates.get(field, {}).get('default_font_size', 40),
-                'max_font_size': coordinates.get(field, {}).get('max_font_size', 40)
+                'x': float(adj_x) if adj_x else float(request.POST.get(f"{field}_x", 0)),
+                'y': float(adj_y) if adj_y else float(request.POST.get(f"{field}_y", 0)),
+                'width': float(text_w) if text_w else coordinates.get(field, {}).get('width', 200),
+                'height': float(text_h) if text_h else coordinates.get(field, {}).get('height', 50),
             }
+        print(updated_coordinates,'aaaaaaaa')
+
 
         request.session['font_settings'] = font_settings
         request.session['final_coordinates'] = updated_coordinates
@@ -321,19 +319,12 @@ def generate_certificates(request):
     if not os.path.exists('output'):
         os.makedirs('output')
 
-    # Generate certificates
     for index, row in enumerate(csv_data):
         img = Image.open(os.path.join(settings.MEDIA_ROOT, template_path)).convert("RGB")
         draw = ImageDraw.Draw(img)
 
         for field, value in row.items():
             field_coords = coordinates.get(field, {})
-            x = int(field_coords.get('x', 0))
-            y = int(field_coords.get('y', 0))
-            width = int(field_coords.get('width', 200))
-            height = int(field_coords.get('height', 50))
-
-            # Get font settings with default fallback
             font_info = font_settings.get(field, {
                 'font': 'Roboto',
                 'size': 40,
@@ -342,40 +333,53 @@ def generate_certificates(request):
                 'italic': False
             })
 
+            # Get font path + settings
             font_path = get_font_path(font_info['font'], font_info.get('bold'), font_info.get('italic'))
-            desired_size = int(font_info['size'])
+            font_size = int(font_info['size'])
             rgb_color = hex_to_rgb(font_info.get('color', '#000000'))
 
-            # Font size reduction loop
-            current_size = desired_size
-            while current_size >= 5:
-                try:
-                    font = ImageFont.truetype(font_path, current_size)
-                except Exception as e:
-                    print(f"Font load error for {font_info['font']} size {current_size}: {e}")
-                    font = ImageFont.load_default()
+            try:
+                font = ImageFont.truetype(font_path, font_size)
+            except Exception as e:
+                print(f"Font load error for {font_info['font']} size {font_size}: {e}")
+                font = ImageFont.load_default()
 
-                text_bbox = draw.textbbox((0, 0), value, font=font)
-                text_width = text_bbox[2] - text_bbox[0]
-                text_height = text_bbox[3] - text_bbox[1]
+            # Use FINAL COORDINATES from frontend (already adjusted)
+            x = int(field_coords.get('x', 0))
+            y = int(field_coords.get('y', 0))
+            text_width = int(field_coords.get('width', 200))
+            text_height = int(field_coords.get('height', 50))
 
-                if text_width <= width and text_height <= height:
+            # Reduction loop before drawing text
+            max_width = text_width
+            max_height = text_height
+            current_size = font_size
+
+            while True:
+                font = ImageFont.truetype(font_path, current_size)
+                bbox = draw.textbbox((0, 0), value, font=font)
+                tw = bbox[2] - bbox[0]
+                th = bbox[3] - bbox[1]
+
+                if tw <= max_width and th <= max_height:
                     break
                 current_size -= 1
+                if current_size < 8:
+                    break
 
-            # Align text center at (x, y)
-            text_x = x - text_width / 2
-            text_y = y + text_height /2
+            # Finally, center text within the rectangle (optional)
+            text_x = x + (max_width - tw) // 2
+            text_y = y + (max_height - th) // 2
 
             draw.text((text_x, text_y), value, fill=rgb_color, font=font)
 
-            rect_x0 = x - width / 2
-            rect_y0 = y - height / 2
-            rect_x1 = x + width / 2
-            rect_y1 = y + height / 2
-            draw.rectangle([rect_x0, rect_y0, rect_x1, rect_y1], outline="red", width=2)
+            # Draw text at final coordinates
+            #draw.text((x, y), value, fill=rgb_color, font=font)
 
-            print(font_info['size'], field)
+            # Optional: draw bounding boxes (debugging)
+            draw.rectangle([x, y, x + text_width, y + text_height], outline="blue", width=2)
+
+            print(f"Placed field '{field}' at ({x}, {y}) with size {font_size}")
 
         safe_name = row.get('Name', f"user_{index+1}").replace(' ', '_')
         output_path = f"output/certificate_{index+1}_{safe_name}.pdf"
