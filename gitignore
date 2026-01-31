@@ -1,1 +1,17 @@
 venv/
+
+# Django
+db.sqlite3
+__pycache__/
+*.pyc
+
+# Media & uploads
+media/
+output/
+
+# PDFs
+*.pdf
+
+# Excel / CSV
+*.csv
+*.xlsx

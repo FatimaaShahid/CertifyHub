@@ -359,6 +359,7 @@
     </div>
   </form>
 
+
 <script>
 const fields = {{ fields|safe }};
 const displayFields = {{ display_fields|safe }};
@@ -471,10 +472,10 @@ function drawPreview() {
     // ctx.fillText(field,(coord.x+x_offset), drawY);
 
     // 🔹 Draw red box around the placement
-    ctx.strokeStyle = "red";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(coord.x, coord.y, coord.width, coord.height);
-    ctx.strokeRect(coord.x+x_offset, coord.y+y_offset, textWidth, textHeight);
+    //ctx.strokeStyle = "red";
+    //ctx.lineWidth = 2;
+    //ctx.strokeRect(coord.x, coord.y, coord.width, coord.height);
+    //ctx.strokeRect(coord.x+x_offset, coord.y+y_offset, textWidth, textHeight);
   });
 }
 

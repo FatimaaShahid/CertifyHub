@@ -40,7 +40,7 @@ def upload_files(request):
         request.session['headers'] = headers
 
 
-        return redirect('map_fields')  # This should match the name in your urls.py
+        return redirect('map_fields')  # This should match the name in urls.py
 
     return render(request, 'generator/index.html')
 
@@ -377,7 +377,7 @@ def generate_certificates(request):
             #draw.text((x, y), value, fill=rgb_color, font=font)
 
             # Optional: draw bounding boxes (debugging)
-            draw.rectangle([x, y, x + text_width, y + text_height], outline="blue", width=2)
+            # draw.rectangle([x, y, x + text_width, y + text_height], outline="blue", width=2)
 
             print(f"Placed field '{field}' at ({x}, {y}) with size {font_size}")
 
